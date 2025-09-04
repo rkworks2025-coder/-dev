@@ -1,201 +1,238 @@
 
-(() => {
+// ====== Junkai shared/app logic (v5m) ======
+const Junkai = (()=>{
   const GAS_URL = "https://script.google.com/macros/s/AKfycby9RpFiUbYu6YX6JW9XfwbDx36_4AIlGEQMOxR3SnxgNdoRUJKfyxvF3b1SEYwuHb3X/exec";
-  const TIRE_APP_URL = "https://rkworks2025-coder.github.io/r.k.w-/";
   const CITIES = ["大和市","海老名市","調布市"];
-  const LS_KEY = city => `junkai:city:${city}`;
-
-  // ---------- helpers ----------
-  function showProgress(on){ const m=document.getElementById("progressModal"); if(!m) return; m.classList.toggle("show", !!on); }
-  function setBar(p){ const b=document.getElementById("progressBar"); if(b) b.style.width = `${Math.max(0,Math.min(100,p))}%`; }
-
-  function normalize(r){
-    const city=(r.city||"").trim();
-    const station=(r.station||"").trim();
-    const model=(r.model||"").trim();
-    const number=(r.number||"").trim();
-    const status=(r.status||"normal").trim();
-    const checked=!!r.checked;
-    let index = Number.isFinite(+r.index) ? parseInt(r.index,10) : 0;
-    if(index<1) index=0;
-    const last=(r.last_inspected_at||"").trim();
-    return {city,station,model,number,status,checked,index,last_inspected_at:last};
-  }
+  const LS_KEY = (city)=> `junkai:city:${city}`;
+  const LATEST_AT = "junkai:lastSyncedAt";
 
   function saveCity(city, arr){ localStorage.setItem(LS_KEY(city), JSON.stringify(arr||[])); }
-  function readCity(city){ try{ const s=localStorage.getItem(LS_KEY(city)); return s? (JSON.parse(s)||[]) : [] }catch(_){ return [] } }
-
-  // ---------- index page ----------
-  async function doSync(){
-    const sText = document.getElementById("statusText");
+  function readCity(city){
     try{
-      showProgress(true); setBar(10);
-      sText && (sText.textContent="GASへ問い合わせ中…");
-      const res = await fetch(`${GAS_URL}?action=pull`, {method:"GET"});
-      setBar(40);
-      const json = await res.json().catch(()=> ({}));
-      if(!json || !json.ok || !Array.isArray(json.data)){
-        sText && (sText.textContent="同期失敗: 通信または解析エラー");
-        showProgress(false); return;
+      const s = localStorage.getItem(LS_KEY(city));
+      if(!s) return [];
+      const a = JSON.parse(s);
+      return Array.isArray(a)? a: [];
+    }catch(_){ return []; }
+  }
+
+  function normalizeRecord(r, i0=0){
+    const city = (r.city||"").trim();
+    const station = (r.station||"").trim();
+    const model = (r.model||"").trim();
+    const number = (r.number||"").trim();
+    const status = (r.status||"normal").trim(); // normal/stop/skip/done
+    const checked = !!r.checked;
+    let index = Number.isFinite(+r.index) ? parseInt(r.index,10) : 0;
+    if(index<1) index = i0;
+    const last_inspected_at = (r.last_inspected_at||"").trim();
+    return {city,station,model,number,status,checked,index,last_inspected_at};
+  }
+
+  // robust fetch with timeout, retries, cache-bust, tolerant JSON parsing
+  async function fetchJSONWithRetry(url,{retries=2, timeoutMs=12000}={}){
+    let err;
+    for(let attempt=0; attempt<=retries; attempt++){
+      const ctrl = new AbortController();
+      const tid = setTimeout(()=> ctrl.abort(), timeoutMs);
+      try{
+        const res = await fetch(url, {method:"GET", cache:"no-store",
+          headers:{"Cache-Control":"no-cache"}, redirect:"follow", signal:ctrl.signal});
+        clearTimeout(tid);
+        const text = await res.text();
+        // Try JSON parse even if content-type is off
+        let json; try { json = JSON.parse(text); } catch(_) { json = null; }
+        if(!json){
+          // try to strip BOM
+          const t2 = text.replace(/^\uFEFF/,"");
+          try { json = JSON.parse(t2); } catch(_){}
+        }
+        if(json) return json;
+        err = new Error("invalid json");
+      }catch(e){
+        err = e;
       }
-      const buckets = {"大和市":[],"海老名市":[],"調布市":[]};
-      json.data.forEach(raw=>{
-        const rec = normalize(raw);
-        if(buckets[rec.city]) buckets[rec.city].push(rec);
-      });
-      // save
-      setBar(70);
-      for(const c of CITIES) saveCity(c, buckets[c]);
-      // recount
-      recountTotals();
-      sText && (sText.textContent = `同期完了: 大和${readCity("大和市").length}/海老名${readCity("海老名市").length}/調布${readCity("調布市").length}`);
-      setBar(100);
+      await new Promise(r=> setTimeout(r, 600*(attempt+1)));
+    }
+    throw err || new Error("fetch failed");
+  }
+
+  async function syncAll(setProgress){
+    const ts = Date.now();
+    const url = `${GAS_URL}?action=pull&_=${ts}`;
+
+    setProgress && setProgress(10, "GASへ問い合わせ中…");
+    let json;
+    try{
+      json = await fetchJSONWithRetry(url,{retries:2, timeoutMs:15000});
     }catch(e){
-      sText && (sText.textContent="同期失敗: 通信または解析エラー");
-    }finally{
-      setTimeout(()=> showProgress(false), 400);
+      throw new Error("通信エラー");
     }
-  }
 
-  function recountTotals(){
-    const map = {
-      "大和市": {done:"#yamato-done", stop:"#yamato-stop", skip:"#yamato-skip", total:"#yamato-total"},
-      "海老名市": {done:"#ebina-done", stop:"#ebina-stop", skip:"#ebina-skip", total:"#ebina-total"},
-      "調布市": {done:"#chofu-done", stop:"#chofu-stop", skip:"#chofu-skip", total:"#chofu-total"}
-    };
-    let overall=0;
-    for(const c of CITIES){
-      const arr = readCity(c) || [];
-      overall += arr.length;
-      const cnt = {done:0, stop:0, skip:0, total:arr.length};
-      arr.forEach(it=>{
-        if(it.status==="stop") cnt.stop++;
-        else if(it.status==="skip") cnt.skip++;
-        if(it.checked || it.status==="done") cnt.done++;
-      });
-      const m = map[c];
-      for(const k of ["done","stop","skip","total"]){
-        const el = document.querySelector(m[k]);
-        if(el) el.textContent = String(cnt[k]);
+    // accept {ok:true,data:[...]}, or direct array, or {records:[...]}
+    const arr = Array.isArray(json) ? json
+              : Array.isArray(json.data) ? json.data
+              : Array.isArray(json.records) ? json.records
+              : [];
+
+    if(!arr.length){
+      throw new Error("データ空（GAS応答に配列が見つかりません）");
+    }
+
+    const buckets = {"大和市":[], "海老名市":[], "調布市":[]};
+    let i = 1;
+    for(const r of arr){
+      const city = (r.city||"").trim();
+      if(!buckets[city]) continue;
+      const rec = normalizeRecord(r, i++);
+      buckets[city].push(rec);
+    }
+
+    // Only overwrite localStorage when bucket has items -> atomic update
+    for(const city of CITIES){
+      if(buckets[city].length>0){
+        saveCity(city, buckets[city]);
       }
     }
-    const hint = document.getElementById("overallHint");
-    if(hint) hint.textContent = overall>0 ? `総件数：${overall}` : "まだ同期されていません";
+    localStorage.setItem(LATEST_AT, String(new Date().toISOString()));
+    setProgress && setProgress(95, "件数集計…");
+    updateIndexTotals();
+    setProgress && setProgress(100, "同期完了");
+    return buckets;
   }
 
-  // bind index
-  const syncBtn = document.getElementById("syncBtn");
-  if(syncBtn){
-    syncBtn.addEventListener("click", doSync);
-    recountTotals();
-  }
-
-  // ---------- city page renderer ----------
-  function rowClass(rec){
-    if(rec.checked) return "bg-pink";
-    if(rec.status==="stop") return "bg-gray";
-    if(rec.status==="skip") return "bg-yellow";
-    return "bg-green";
-  }
-
-  function formatIndex(prefix, n){ return `${prefix}${n}`; }
-
-  function renderCity(city, prefix){
-    const list = document.getElementById("list");
-    const count = document.getElementById("count");
-    if(!list) return;
-    const data = (readCity(city) || []).slice();
-    list.innerHTML = "";
-    count && (count.textContent = `件数：${data.length}`);
-    if(data.length===0){
-      const p = document.createElement("p");
-      p.className="hint"; p.textContent="まだ同期されていません（インデックスの同期を押してください）";
-      list.appendChild(p); return;
+  function countFrom(arr){
+    const cnt = {done:0, stop:0, skip:0, total:arr.length};
+    for(const it of arr){
+      if(it.status === "stop") cnt.stop++;
+      else if(it.status === "skip") cnt.skip++;
+      if(it.checked || it.status === "done") cnt.done++;
     }
+    return cnt;
+  }
 
-    // stable order: by existing index if any, then station name
-    data.sort((a,b)=>{
-      const ai = (a.index>0?a.index:1e9), bi=(b.index>0?b.index:1e9);
-      return ai-b || a.station.localeCompare(b.station,'ja');
-    });
+  function updateIndexTotals(){
+    const cities = [
+      ["yamato","大和市"],
+      ["ebina","海老名市"],
+      ["chofu","調布市"]
+    ];
+    for(const [key,city] of cities){
+      const a = readCity(city);
+      const c = countFrom(a);
+      const qs = (id)=>document.getElementById(`${key}-${id}`);
+      const map = {done:qs("done"), stop:qs("stop"), skip:qs("skip"), total:qs("total")};
+      if(map.done){ map.done.textContent = c.done; }
+      if(map.stop){ map.stop.textContent = c.stop; }
+      if(map.skip){ map.skip.textContent = c.skip; }
+      if(map.total){ map.total.textContent = c.total; }
+    }
+  }
 
-    // assign per-city running index
-    data.forEach((rec,i)=>{ rec._seq = i+1; });
+  // ===== index page =====
+  function initIndex(){
+    const modal = document.getElementById("progressModal");
+    const bar = document.getElementById("progressBar");
+    const status = document.getElementById("statusText");
+    const syncBtn = document.getElementById("syncBtn");
 
-    for(const rec of data){
+    const setProgress = (pct, text)=>{
+      if(modal) modal.classList.add("show");
+      if(bar) bar.style.width = `${Math.max(0,Math.min(100,pct))}%`;
+      if(status && text) status.textContent = text;
+    };
+
+    updateIndexTotals();
+    if(syncBtn){
+      syncBtn.addEventListener("click", async ()=>{
+        try{
+          setProgress(5, "開始…");
+          await syncAll(setProgress);
+          status.textContent = "同期完了！";
+        }catch(e){
+          status.textContent = `同期失敗：${e && e.message ? e.message : "通信または解析エラー"}`;
+        }finally{
+          setTimeout(()=> modal && modal.classList.remove("show"), 600);
+        }
+      });
+    }
+  }
+
+  // ===== city page render =====
+  const SEVEN = 7*24*60*60*1000;
+  const within7 = (ts)=>{
+    if(!ts) return false;
+    const t = Date.parse(ts); if(!Number.isFinite(t)) return false;
+    return (Date.now()-t) < SEVEN;
+  };
+  const rowClass = (rec)=> rec.checked ? "bg-pink" :
+                     rec.status==="stop" ? "bg-gray" :
+                     rec.status==="skip" ? "bg-yellow" :
+                     within7(rec.last_inspected_at) ? "bg-blue" : "bg-green";
+
+  function renderCity(city){
+    const list = document.getElementById("list");
+    const hint = document.getElementById("hint");
+    const data = readCity(city);
+    list.innerHTML="";
+    if(!data.length){ hint.textContent="まだ同期されていません（インデックスで同期）"; return; }
+    hint.textContent = `件数：${data.length}`;
+
+    // 再割当：ページ側の通し番号を E/Y/C + 1..N で振る（numberに紐付け）
+    const prefix = city==="海老名市" ? "E" : city==="大和市" ? "Y" : "C";
+    const reindexed = data.map((rec, i)=> ({...rec, ui_index:`${prefix}${i+1}`}));
+
+    for(const rec of reindexed){
       const card = document.createElement("div");
-      card.className = `vehicle-card ${rowClass(rec)}`;
-
-      const grid = document.createElement("div");
-      grid.className = "grid";
+      card.className = `rowcard ${rowClass(rec)}`;
 
       const idx = document.createElement("div");
-      idx.className = "idx";
-      idx.textContent = formatIndex(prefix, rec._seq);
+      idx.className="idx"; idx.textContent = rec.ui_index || "-";
 
       const content = document.createElement("div");
-      content.className = "content";
+      content.className="content";
+      const l1 = document.createElement("div"); l1.className="title-line"; l1.textContent = rec.station || "(無名)";
+      const l2 = document.createElement("div"); l2.className="meta-line"; l2.textContent = `${rec.model || ""}　${rec.number || ""}`;
+      content.appendChild(l1); content.appendChild(l2);
 
-      const title = document.createElement("div");
-      title.className = "title-line";
-      title.textContent = rec.station || "(無名)";
+      const actions = document.createElement("div");
+      actions.className="actions";
 
-      const meta = document.createElement("div");
-      meta.className = "meta-line";
-      const m1 = document.createElement("span"); m1.textContent = rec.model || "";
-      const m2 = document.createElement("span"); m2.textContent = rec.number || "";
-      meta.appendChild(m1); meta.appendChild(m2);
-
-      content.appendChild(title); content.appendChild(meta);
-
-      const ctrls = document.createElement("div");
-      ctrls.className = "ctrls";
-
-      // state select
       const sel = document.createElement("select");
-      sel.className = "state-select";
-      [["normal","通常"],["stop","停止"],["skip","不要"]].forEach(([v,l])=>{
-        const op=document.createElement("option");
-        op.value=v; op.textContent=l; if(rec.status===v) op.selected=true; sel.appendChild(op);
+      sel.className="state-select";
+      [["normal","通常"],["stop","停止"],["skip","不要"]].forEach(([v,lab])=>{
+        const o = document.createElement("option"); o.value=v; o.textContent=lab; if(rec.status===v) o.selected=true; sel.appendChild(o);
       });
       sel.addEventListener("change", ()=>{
         rec.status = sel.value;
-        saveBack(city, rec);
-        card.className = `vehicle-card ${rowClass(rec)}`;
+        persist(city, rec);
+        card.className = `rowcard ${rowClass(rec)}`;
       });
 
-      // inspect button
       const btn = document.createElement("button");
-      btn.type="button"; btn.className="inspect-btn"; btn.textContent="点検";
+      btn.className="btn-mini"; btn.textContent="点検";
       btn.addEventListener("click", ()=>{
-        const q = new URLSearchParams({
-          st: rec.station || "",
-          model: rec.model || "",
-          num: rec.number || ""
-        });
-        window.open(`${TIRE_APP_URL}?${q.toString()}`, "_blank");
+        const q = new URLSearchParams({station:rec.station||"", model:rec.model||"", number:rec.number||""});
+        const target = "https://rkworks2025-coder.github.io/r.k.w-/index.html?" + q.toString();
+        window.location.href = target;
       });
 
-      ctrls.appendChild(sel);
-      ctrls.appendChild(btn);
+      actions.appendChild(sel); actions.appendChild(btn);
 
-      grid.appendChild(idx);
-      grid.appendChild(content);
-      grid.appendChild(ctrls);
-
-      card.appendChild(grid);
+      card.appendChild(idx);
+      card.appendChild(content);
+      card.appendChild(actions);
 
       list.appendChild(card);
     }
   }
 
-  function saveBack(city, rec){
+  function persist(city, rec){
     const arr = readCity(city);
     const i = arr.findIndex(x=> (x.number||"") === (rec.number||""));
     if(i>=0) arr[i]=rec; else arr.push(rec);
     saveCity(city, arr);
   }
 
-  // expose
-  window.renderCity = renderCity;
+  return { initIndex, renderCity, readCity };
 })();

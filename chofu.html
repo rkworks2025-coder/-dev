@@ -3,28 +3,29 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>調布市｜巡回</title>
-  <link rel="stylesheet" href="style.css?v=v5l" />
+  <link rel="stylesheet" href="style.css?v=5m" />
 </head>
 <body>
   <header class="appbar">
-    <div class="inner">
-      <div class="left"><a class="btn" href="index.html">戻る</a></div>
+    <div class="row">
+      <a class="btn" href="index.html">戻る</a>
       <div class="title">調布市</div>
-      <div class="right"></div>
+      <div style="width:70px"></div>
     </div>
   </header>
 
   <main class="wrap">
-    <div id="count" class="count"></div>
+    <div id="hint" class="hint">同期後に表示されます。</div>
     <div id="list" class="list"></div>
   </main>
 
-  <div class="ver">v5l</div>
-  <script src="app.js?v=v5l"></script>
+  <div class="ver">v5m</div>
+
+  <script src="app.js?v=5m"></script>
   <script>
-    window.renderCity && window.renderCity("調布市", "C");
+    window.addEventListener('DOMContentLoaded', ()=> Junkai.renderCity("調布市"));
   </script>
 </body>
 </html>
