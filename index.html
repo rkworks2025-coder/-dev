@@ -1,84 +1,65 @@
-<!doctype html><html lang="ja"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>巡回リスト</title>
-<link rel="stylesheet" href="style.css"/>
-</head><body>
-<header class="appbar">
-  <div class="left"></div>
-  <div class="title">巡回リスト</div>
-  <div class="right">
-    <button id="recalcBtn" class="btn">再計算</button>
-    <button id="syncBtn" class="btn primary">同期</button>
-  </div>
-</header>
-<main class="wrap">
-  <p id="statusText" class="hint">GASから取得して各エリアに保存・反映します。</p>
-  <section class="cards">
-    <a class="card" href="yamato.html">
-      <h3>大和市</h3>
-      <div class="meta">
-        <span class="chip">済 <span id="y-done">0</span></span>
-        <span class="chip">停 <span id="y-stop">0</span></span>
-        <span class="chip">不要 <span id="y-skip">0</span></span>
-        <span class="chip">総 <span id="y-total">0</span></span>
-      </div>
-    </a>
-    <a class="card" href="ebina.html">
-      <h3>海老名市</h3>
-      <div class="meta">
-        <span class="chip">済 <span id="e-done">0</span></span>
-        <span class="chip">停 <span id="e-stop">0</span></span>
-        <span class="chip">不要 <span id="e-skip">0</span></span>
-        <span class="chip">総 <span id="e-total">0</span></span>
-      </div>
-    </a>
-    <a class="card" href="chofu.html">
-      <h3>調布市</h3>
-      <div class="meta">
-        <span class="chip">済 <span id="c-done">0</span></span>
-        <span class="chip">停 <span id="c-stop">0</span></span>
-        <span class="chip">不要 <span id="c-skip">0</span></span>
-        <span class="chip">総 <span id="c-total">0</span></span>
-      </div>
-    </a>
-  </section>
-  <p id="overallHint" class="empty">まだ同期されていません</p>
-</main>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>巡回リスト</title>
+  <link rel="stylesheet" href="style.css?v=20250901"/>
+</head>
+<body>
+  <header class="appbar">
+    <div class="title">巡回リスト</div>
+    <div class="btns">
+      <button id="syncBtn" class="btn btn-primary">同期</button>
+    </div>
+  </header>
 
-<div id="progressModal" class="modal" aria-hidden="true">
-  <div class="dialog">
-    <h3>同期中…</h3>
-    <div class="barwrap"><div id="progressBar" class="bar"></div></div>
-  </div>
-</div>
+  <main class="wrap">
+    <p id="statusText" class="hint">GASから取得して各エリアに保存・反映します。</p>
+    <section id="cityCards" class="cards">
+      <a class="card" href="yamato.html">
+        <h2>大和市</h2>
+        <div class="meta">
+          <span class="chip">済 <span id="yamato-done">0</span></span>
+          <span class="chip">停 <span id="yamato-stop">0</span></span>
+          <span class="chip">不要 <span id="yamato-skip">0</span></span>
+          <span class="chip">総 <span id="yamato-total">0</span></span>
+        </div>
+      </a>
+      <a class="card" href="ebina.html">
+        <h2>海老名市</h2>
+        <div class="meta">
+          <span class="chip">済 <span id="ebina-done">0</span></span>
+          <span class="chip">停 <span id="ebina-stop">0</span></span>
+          <span class="chip">不要 <span id="ebina-skip">0</span></span>
+          <span class="chip">総 <span id="ebina-total">0</span></span>
+        </div>
+      </a>
+      <a class="card" href="chofu.html">
+        <h2>調布市</h2>
+        <div class="meta">
+          <span class="chip">済 <span id="chofu-done">0</span></span>
+          <span class="chip">停 <span id="chofu-stop">0</span></span>
+          <span class="chip">不要 <span id="chofu-skip">0</span></span>
+          <span class="chip">総 <span id="chofu-total">0</span></span>
+        </div>
+      </a>
+    </section>
+    <p id="overallHint" class="empty">まだ同期されていません</p>
+  </main>
 
-<div class="ver">v5e</div>
-<script src="app.js"></script>
-<script>
-(function(){
-  const els = {
-    y:{done:"#y-done",stop:"#y-stop",skip:"#y-skip",total:"#y-total"},
-    e:{done:"#e-done",stop:"#e-stop",skip:"#e-skip",total:"#e-total"},
-    c:{done:"#c-done",stop:"#c-stop",skip:"#c-skip",total:"#c-total"},
-    hint: document.getElementById("overallHint"),
-    syncBtn: document.getElementById("syncBtn"),
-    recalcBtn: document.getElementById("recalcBtn"),
-  };
-  function setCounts(){
-    const yc = Junkai.countByCity("大和市");
-    const ec = Junkai.countByCity("海老名市");
-    const cc = Junkai.countByCity("調布市");
-    for(const [k,c] of [["y",yc],["e",ec],["c",cc]]){
-      for(const key of ["done","stop","skip","total"]){
-        document.querySelector(els[k][key]).textContent = c[key];
-      }
-    }
-    const overall = yc.total + ec.total + cc.total;
-    els.hint.textContent = overall>0 ? `総件数：${overall}` : "まだ同期されていません";
-  }
-  els.syncBtn.addEventListener("click", ()=>Junkai.doSync(setCounts));
-  els.recalcBtn.addEventListener("click", setCounts);
-  setCounts(); // initial
-})();
-</script>
-</body></html>
+  <div id="progressModal" class="modal" aria-hidden="true">
+    <div class="dialog">
+      <h3 id="progressTitle">同期中…</h3>
+      <div class="barwrap"><div id="progressBar" class="bar"></div></div>
+    </div>
+  </div>
+
+  <div class="ver">v5i</div>
+  <script src="app.js?v=20250901"></script>
+  <script>
+    document.getElementById('syncBtn').addEventListener('click', ()=>{ Junkai.syncFromGAS(); });
+    Junkai.recalcIndexCards();
+  </script>
+</body>
+</html>
