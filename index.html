@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>巡回リスト｜シンプル同期</title>
+  <title>巡回リスト｜同期プローブ版</title>
   <style>
     :root{--accent:#2563eb;--muted:#64748b;--chip:#eef2ff}
     html,body{margin:0;padding:0}
@@ -24,12 +24,13 @@
     /* Progress modal */
     .modal{position:fixed;inset:0;background:rgba(8,15,35,.45);display:none;align-items:center;justify-content:center;z-index:50}
     .modal.show{display:flex}
-    .dialog{width:min(520px,92vw);background:#111827;color:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .dialog{width:min(560px,92vw);background:#111827;color:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
     .barwrap{height:8px;background:#1f2937;border-radius:999px;overflow:hidden;margin-top:12px}
     .bar{height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#a78bfa,#34d399)}
     .dialog h3{margin:0 0 8px 0;font-size:18px}
-    .dbg{margin-top:10px;font-size:12px;color:#cbd5e1;line-height:1.4;white-space:pre-wrap}
+    .dbg{margin-top:10px;font-size:12px;color:#cbd5e1;line-height:1.4;white-space:pre-wrap;max-height:42vh;overflow:auto;border-top:1px solid rgba(255,255,255,.1);padding-top:8px}
     .ver{position:fixed;right:8px;bottom:6px;font-size:10px;color:#94a3b8;opacity:.7;pointer-events:none;z-index:9}
+    .ok{color:#34d399} .warn{color:#fbbf24} .err{color:#f87171}
   </style>
 </head>
 <body>
@@ -44,7 +45,7 @@
   <main class="wrap">
     <p id="statusText" class="hint">GAS と同期して各エリアに保存・反映します。</p>
 
-    <section id="cityCards" class="cards">
+    <section class="cards">
       <a class="card" href="yamato.html">
         <h2>大和市</h2>
         <div class="meta">
@@ -84,170 +85,158 @@
       <div id="debugBox" class="dbg"></div>
     </div>
   </div>
-
-  <div class="ver">v_sync_debug</div>
+  <div class="ver">v_sync_probe</div>
 
 <script>
-// ====== 設定 ======
 const GAS_URL = "https://script.google.com/macros/s/AKfycby9RpFiUbYu6YX6JW9XfwbDx36_4AIlGEQMOxR3SnxgNdoRUJKfyxvF3b1SEYwuHb3X/exec";
 const CITIES = ["大和市","海老名市","調布市"];
-const LS_KEY = (city) => `junkai:city:${city}`;
+const LS_KEY = (city)=>`junkai:city:${city}`;
 
-// ====== DOM ======
 const els = {
   syncBtn: document.getElementById("syncBtn"),
   recalcBtn: document.getElementById("recalcBtn"),
   statusText: document.getElementById("statusText"),
   progressModal: document.getElementById("progressModal"),
   progressBar: document.getElementById("progressBar"),
+  progressTitle: document.getElementById("progressTitle"),
   debugBox: document.getElementById("debugBox"),
   totals: {
-    "大和市": { done: "#yamato-done", stop: "#yamato-stop", skip: "#yamato-skip", total: "#yamato-total" },
-    "海老名市": { done: "#ebina-done",  stop: "#ebina-stop",  skip: "#ebina-skip",  total: "#ebina-total"  },
-    "調布市": { done: "#chofu-done",  stop: "#chofu-stop",  skip: "#chofu-skip",  total: "#chofu-total"  },
-  },
+    "大和市": { done:"#yamato-done", stop:"#yamato-stop", skip:"#yamato-skip", total:"#yamato-total" },
+    "海老名市": { done:"#ebina-done",  stop:"#ebina-stop",  skip:"#ebina-skip",  total:"#ebina-total"  },
+    "調布市": { done:"#chofu-done",  stop:"#chofu-stop",  skip:"#chofu-skip",  total:"#chofu-total"  },
+  }
 };
+function $(s){return document.querySelector(s)}
 
-function showProgress(on, title){
-  if (title) document.getElementById("progressTitle").textContent = title;
-  if (!els.progressModal) return;
-  if (on) els.progressModal.classList.add("show");
+function showProgress(on,title){
+  if(title) els.progressTitle.textContent = title;
+  if(on) els.progressModal.classList.add("show");
   else els.progressModal.classList.remove("show");
 }
-let progTimer=null, progT=0;
-function startBar(){ progT=0; els.progressBar.style.width='0%'; progTimer=setInterval(()=>{ progT=(progT+6)%100; els.progressBar.style.width=progT+'%'; }, 90); }
-function stopBar(){ if(progTimer){ clearInterval(progTimer); progTimer=null; } els.progressBar.style.width='100%'; setTimeout(()=>{ els.progressBar.style.width='0%'; }, 300); }
-
-function debug(msg){
-  console.log("[SYNC]", msg);
-  if (els.debugBox) els.debugBox.textContent = String(msg).slice(0,2000);
+let tmr=null,p=0;
+function startBar(){ p=0; els.progressBar.style.width='0%'; tmr=setInterval(()=>{ p=(p+5)%100; els.progressBar.style.width=p+'%'; },90); }
+function stopBar(){ if(tmr){ clearInterval(tmr); tmr=null; } els.progressBar.style.width='100%'; setTimeout(()=>els.progressBar.style.width='0%',300); }
+function dbg(lines){
+  const s = Array.isArray(lines)? lines.join("\n") : String(lines||"");
+  console.log("[DEBUG]", s);
+  els.debugBox.textContent = s.slice(0,4000);
 }
 
-function isHeaderValue(v){
-  const s = String(v||"").trim();
-  return ["city","市区町村","City"].includes(s);
-}
-
-// 正規化（配列 or オブジェクトを想定）
-function normalizeRow(row){
-  if (Array.isArray(row)){
-    const city    = (row[0]??"").toString().trim();
-    const station = (row[1]??"").toString().trim();
-    const model   = (row[2]??"").toString().trim();
-    const number  = (row[3]??"").toString().trim();
-    if (!city || isHeaderValue(city)) return null;
-    return {city, station, model, number, status:"normal", checked:false, index:0, last_inspected_at:""};
-  } else if (row && typeof row === "object"){
-    const city    = (row.city ?? row.cityName ?? row["市区町村"] ?? row["City"] ?? "").toString().trim();
-    const station = (row.station ?? row.stationName ?? row["ステーション"] ?? row["Station"] ?? "").toString().trim();
-    const model   = (row.model ?? row["車種名"] ?? row["Model"] ?? "").toString().trim();
-    const number  = (row.number ?? row.plate_full ?? row.plate ?? row["登録番号"] ?? row["Plate"] ?? "").toString().trim();
-    const status  = (row.status ?? "normal").toString().trim();
-    const checked = !!row.checked;
-    let index     = Number.isFinite(+row.index) ? parseInt(row.index,10) : 0;
-    const last_inspected_at = (row.last_inspected_at ?? "").toString().trim();
-    if (!city || isHeaderValue(city)) return null;
-    return {city, station, model, number, status, checked, index, last_inspected_at};
-  }
+function coerceJSON(text){
+  try{ return JSON.parse(text); }catch{}
+  // JSON ラップ文字列（ダブルエンコード）の可能性を再試行
+  try{ const mid = JSON.parse(text); if (typeof mid === "string") return JSON.parse(mid); }catch{}
   return null;
 }
-
-// 受信ペイロードから配列を抽出
 function extractRows(payload){
   if (Array.isArray(payload)) return payload;
-  if (payload && typeof payload === "object"){
-    if (Array.isArray(payload.data)) return payload.data;
-    if (Array.isArray(payload.rows)) return payload.rows;
-    if (Array.isArray(payload.values)) return payload.values;
-    // city ごとに分かれたオブジェクト形式 { yamato:[], ebina:[], chofu:[] }
+  if (payload && typeof payload==="object"){
     const keys = Object.keys(payload);
-    const cityBuckets = [];
+    if (Array.isArray(payload.data)) return payload.data;
+    if (typeof payload.data === "string"){ try{ const arr=JSON.parse(payload.data); if(Array.isArray(arr)) return arr; }catch{} }
+    if (Array.isArray(payload.rows)) return payload.rows;
+    if (Array.isArray(payload.values)) return payload.values; // Sheets API 風
+    // city ごとの配列オブジェクト
+    const cityKeys = ["大和市","海老名市","調布市","yamato","ebina","chofu"];
     for (const k of keys){
-      const v = payload[k];
-      if (Array.isArray(v) && ["yamato","ebina","chofu","大和市","海老名市","調布市"].includes(k)){
+      if (cityKeys.includes(k) && Array.isArray(payload[k])){
         const cityName = (k==="yamato"?"大和市":k==="ebina"?"海老名市":k==="chofu"?"調布市":k);
-        for (const r of v){
-          const obj = normalizeRow(r) || {};
-          obj.city = cityName;
-          cityBuckets.push(obj);
-        }
-        return cityBuckets; // 既に city 付与済み配列
+        return payload[k].map(r=>({city:cityName, ...(Array.isArray(r)?{station:r[1],model:r[2],number:r[3]}:r)}));
       }
     }
   }
   return [];
 }
-
-// 集計の再計算と表示
+function isHeader(v){
+  const s = String(v||"").trim();
+  return ["city","市区町村","City"].includes(s);
+}
+function normalizeRow(r){
+  if (Array.isArray(r)){
+    const c=(r[0]??"").toString().trim();
+    if(!c || isHeader(c)) return null;
+    return {
+      city: c.endsWith("市")?c : (c==="大和"?"大和市":c==="海老名"?"海老名市":c==="調布"?"調布市":c),
+      station: (r[1]??"").toString().trim(),
+      model: (r[2]??"").toString().trim(),
+      number: (r[3]??"").toString().trim(),
+      status: (r[4]??"normal").toString().trim(),
+      checked: !!r[5],
+      index: Number.isFinite(+r[6])?parseInt(r[6],10):0,
+      last_inspected_at: (r[7]??"").toString().trim(),
+    };
+  }
+  if (r && typeof r==="object"){
+    const c=(r.city ?? r["市区町村"] ?? r.cityName ?? "").toString().trim();
+    if(!c || isHeader(c)) return null;
+    const city = c.endsWith("市")?c : (c==="大和"?"大和市":c==="海老名"?"海老名市":c==="調布"?"調布市":c);
+    return {
+      city,
+      station:(r.station ?? r["ステーション"] ?? r.stationName ?? "").toString().trim(),
+      model:(r.model ?? r["車種名"] ?? r["車種"] ?? "").toString().trim(),
+      number:(r.number ?? r.plate_full ?? r.plate ?? r["登録番号"] ?? "").toString().trim(),
+      status:(r.status ?? "normal").toString().trim(),
+      checked:!!r.checked,
+      index:Number.isFinite(+r.index)?parseInt(r.index,10):0,
+      last_inspected_at:(r.last_inspected_at ?? "").toString().trim(),
+    };
+  }
+  return null;
+}
+function readCity(city){
+  try{ const s=localStorage.getItem(LS_KEY(city)); if(!s) return []; const a=JSON.parse(s); return Array.isArray(a)?a:[]; }catch{ return []; }
+}
 function recalcAll(){
-  let overall = 0;
-  for (const city of CITIES){
+  let overall=0;
+  for(const city of CITIES){
     const arr = readCity(city);
     overall += arr.length;
-    const cnt = { done:0, stop:0, skip:0, total:arr.length };
-    for (const it of arr){
-      if (it.status==="stop") cnt.stop++;
-      else if (it.status==="skip") cnt.skip++;
-      if (it.checked || it.status==="done") cnt.done++;
+    const cnt = {done:0,stop:0,skip:0,total:arr.length};
+    for(const it of arr){
+      if(it.status==="stop") cnt.stop++;
+      else if(it.status==="skip") cnt.skip++;
+      if(it.checked || it.status==="done") cnt.done++;
     }
-    const map = els.totals[city];
-    document.querySelector(map.done ).textContent = cnt.done;
-    document.querySelector(map.stop ).textContent = cnt.stop;
-    document.querySelector(map.skip ).textContent = cnt.skip;
-    document.querySelector(map.total).textContent = cnt.total;
+    const map=els.totals[city];
+    $(map.done).textContent = cnt.done;
+    $(map.stop).textContent = cnt.stop;
+    $(map.skip).textContent = cnt.skip;
+    $(map.total).textContent = cnt.total;
   }
-  const hint = document.getElementById("overallHint");
-  hint.textContent = overall>0 ? `総件数：${overall}` : "まだ同期されていません";
-}
-
-function readCity(city){
-  try{
-    const s = localStorage.getItem(LS_KEY(city));
-    if (!s) return [];
-    const a = JSON.parse(s);
-    return Array.isArray(a)?a:[];
-  }catch(_){ return []; }
+  document.getElementById("overallHint").textContent = overall>0? `総件数：${overall}` : "まだ同期されていません";
 }
 
 async function doSync(){
+  showProgress(true,"同期中…"); startBar();
+  els.statusText.textContent = "GASへ問い合わせ中…";
   try{
-    showProgress(true, "同期中…"); startBar();
-    els.statusText.textContent = "GASへ問い合わせ中…";
-
-    const res = await fetch(`${GAS_URL}?action=pull&ts=${Date.now()}`, { method:"GET", headers:{ "Cache-Control":"no-cache" } });
+    const res = await fetch(`${GAS_URL}?action=pull&ts=${Date.now()}`, {cache:"no-store"});
     const text = await res.text();
-    let payload = {};
-    try { payload = JSON.parse(text); } catch(_){ payload = {}; }
-    debug(`HTTP ${res.status}\n型: ${Array.isArray(payload)?"Array":typeof payload}\nプレビュー: ${text.slice(0,200)}…`);
-
-    // 配列抽出
+    dbg([`HTTP ${res.status} ${res.statusText}`,
+         text.trim().startsWith("<")? "⚠ HTML応答を検出（公開設定/エラー画面の可能性）" : "JSON/テキスト応答",
+         `先頭200: ${text.slice(0,200)}`]);
+    let payload = coerceJSON(text) ?? {};
     let rows = extractRows(payload);
-    if (!Array.isArray(rows)) rows = [];
-    // 正規化
-    const normalized = [];
-    for (const r of rows){
-      const n = normalizeRow(r);
-      if (n && CITIES.includes(n.city)) normalized.push(n);
+    if (!Array.isArray(rows) || rows.length===0){
+      // payload が JSON 文字列で data を内包しているケースの再試行
+      if (typeof payload==="string"){
+        try{ const p2 = JSON.parse(payload); rows = extractRows(p2); }catch{}
+      }
     }
-
-    // 都市別バケット
-    const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
-    for (const rec of normalized){
-      buckets[rec.city].push(rec);
+    const normalized=[];
+    for(const r of rows){
+      const n=normalizeRow(r);
+      if(n && CITIES.includes(n.city)) normalized.push(n);
     }
-
-    // 保存
-    for (const city of CITIES){
-      localStorage.setItem(LS_KEY(city), JSON.stringify(buckets[city]));
-    }
+    const buckets={"大和市":[],"海老名市":[],"調布市":[]};
+    for(const n of normalized){ buckets[n.city].push(n); }
+    for(const city of CITIES){ localStorage.setItem(LS_KEY(city), JSON.stringify(buckets[city])); }
     els.statusText.textContent = `同期完了：大和${buckets["大和市"].length} / 海老名${buckets["海老名市"].length} / 調布${buckets["調布市"].length}`;
-    debug(`保存件数 大和:${buckets["大和市"].length} 海老名:${buckets["海老名市"].length} 調布:${buckets["調布市"].length}`);
-
+    dbg([`保存件数: 大和${buckets["大和市"].length} 海老名${buckets["海老名市"].length} 調布${buckets["調布市"].length}`]);
     recalcAll();
-  }catch(err){
-    console.error(err);
+  }catch(e){
     els.statusText.textContent = "同期失敗：通信または解析エラー";
-    debug(String(err && err.message || err));
+    dbg(["同期失敗", String(e && e.message || e)]);
   }finally{
     stopBar(); setTimeout(()=>showProgress(false,"同期完了！"), 350);
   }
