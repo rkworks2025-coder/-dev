@@ -3,33 +3,33 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>巡回リスト</title>
+  <title>巡回リスト｜シンプル同期</title>
   <style>
-    :root{--fg:#0f172a;--muted:#64748b;--chip:#eef2ff;--accent:#1e40af}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f6f7fb;color:var(--fg)}
-    .appbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #e6e8ef}
-    .title{font-size:20px;font-weight:800;letter-spacing:.04em}
+    :root{--accent:#2563eb;--muted:#64748b;--chip:#eef2ff}
+    html,body{margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f6f7fb;color:#0f172a}
+    .appbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #e5e7eb}
+    .title{font-size:18px;font-weight:800;letter-spacing:.02em}
     .btns{display:flex;gap:10px}
-    .btn{appearance:none;border:1px solid #d7dbe7;padding:8px 14px;border-radius:12px;background:#fff;font-weight:700;font-size:14px}
-    .btn-primary{background:var(--chip);border-color:#c9d6ff;color:var(--accent)}
-    .wrap{max-width:880px;margin:18px auto;padding:0 14px 60px}
+    .btn{appearance:none;border:1px solid #cbd5e1;padding:8px 14px;border-radius:12px;background:#fff;font-weight:700;font-size:14px;cursor:pointer}
+    .btn-primary{background:var(--chip);border-color:#c7d2fe;color:#1e40af}
+    .wrap{max-width:860px;margin:16px auto;padding:0 14px 60px}
     .hint{margin:6px 2px 14px;color:var(--muted);font-size:13px}
     .cards{display:grid;grid-template-columns:1fr;gap:14px}
-    .card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #e6e8ef;border-radius:16px;padding:18px 16px;box-shadow:0 1px 0 rgba(8,15,35,.03)}
-    .card:hover{background:#fafcff}
-    .card h2{margin:0 0 8px 0;font-size:18px;letter-spacing:.03em}
+    .card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px 16px;box-shadow:0 1px 0 rgba(8,15,35,.03)}
+    .card h2{margin:0 0 8px 0;font-size:18px}
     .meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px}
-    .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f2f5fb;border:1px solid #e6e8ef}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f1f5f9;border:1px solid #e5e7eb}
     .empty{margin:28px 2px 0 2px;color:var(--muted);font-size:14px}
-
-    /* モーダル */
-    .modal{position:fixed;inset:0;background:rgba(8,15,35,.5);display:none;align-items:center;justify-content:center;z-index:50}
+    /* Progress modal */
+    .modal{position:fixed;inset:0;background:rgba(8,15,35,.45);display:none;align-items:center;justify-content:center;z-index:50}
     .modal.show{display:flex}
-    .dialog{width:min(520px,90vw);background:#111827;color:#fff;border-radius:14px;padding:16px 16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    .dialog h3{margin:0 0 8px 0;font-size:18px}
-    .barwrap{height:8px;background:#1f2937;border-radius:999px;overflow:hidden;margin-top:10px}
+    .dialog{width:min(520px,92vw);background:#111827;color:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .barwrap{height:8px;background:#1f2937;border-radius:999px;overflow:hidden;margin-top:12px}
     .bar{height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#a78bfa,#34d399)}
+    .dialog h3{margin:0 0 8px 0;font-size:18px}
+    .dbg{margin-top:10px;font-size:12px;color:#cbd5e1;line-height:1.4;white-space:pre-wrap}
+    .ver{position:fixed;right:8px;bottom:6px;font-size:10px;color:#94a3b8;opacity:.7;pointer-events:none;z-index:9}
   </style>
 </head>
 <body>
@@ -42,10 +42,10 @@
   </header>
 
   <main class="wrap">
-    <p id="statusText" class="hint">GASから取得して各エリアに保存・反映します。</p>
+    <p id="statusText" class="hint">GAS と同期して各エリアに保存・反映します。</p>
 
     <section id="cityCards" class="cards">
-      <a id="card-yamato" class="card" href="yamato.html" data-city="大和市">
+      <a class="card" href="yamato.html">
         <h2>大和市</h2>
         <div class="meta">
           <span class="chip">済 <span id="yamato-done">0</span></span>
@@ -54,8 +54,7 @@
           <span class="chip">総 <span id="yamato-total">0</span></span>
         </div>
       </a>
-
-      <a id="card-ebina" class="card" href="ebina.html" data-city="海老名市">
+      <a class="card" href="ebina.html">
         <h2>海老名市</h2>
         <div class="meta">
           <span class="chip">済 <span id="ebina-done">0</span></span>
@@ -64,8 +63,7 @@
           <span class="chip">総 <span id="ebina-total">0</span></span>
         </div>
       </a>
-
-      <a id="card-chofu" class="card" href="chofu.html" data-city="調布市">
+      <a class="card" href="chofu.html">
         <h2>調布市</h2>
         <div class="meta">
           <span class="chip">済 <span id="chofu-done">0</span></span>
@@ -83,148 +81,181 @@
     <div class="dialog">
       <h3 id="progressTitle">同期中…</h3>
       <div class="barwrap"><div id="progressBar" class="bar"></div></div>
+      <div id="debugBox" class="dbg"></div>
     </div>
   </div>
 
-  <script>
-  // ===== 設定 =====
-  // ユーザー提供のGAS WebアプリURL（Anyoneアクセス、GET許可）
-  const GAS_URL = "https://script.google.com/macros/s/AKfycby9RpFiUbYu6YX6JW9XfwbDx36_4AIlGEQMOxR3SnxgNdoRUJKfyxvF3b1SEYwuHb3X/exec";
-  const CITIES = ["大和市","海老名市","調布市"];
-  const LS_KEY = (city)=>`junkai:city:${city}`;
+  <div class="ver">v_sync_debug</div>
 
-  // ===== DOM =====
-  const els = {
-    status: document.getElementById('statusText'),
-    syncBtn: document.getElementById('syncBtn'),
-    recalcBtn: document.getElementById('recalcBtn'),
-    modal: document.getElementById('progressModal'),
-    bar: document.getElementById('progressBar'),
-    totals: {
-      "大和市": { done:"#yamato-done", stop:"#yamato-stop", skip:"#yamato-skip", total:"#yamato-total" },
-      "海老名市": { done:"#ebina-done", stop:"#ebina-stop", skip:"#ebina-skip", total:"#ebina-total" },
-      "調布市": { done:"#chofu-done", stop:"#chofu-stop", skip:"#chofu-skip", total:"#chofu-total" }
-    }
-  };
-  function $(sel){return document.querySelector(sel)}
+<script>
+// ====== 設定 ======
+const GAS_URL = "https://script.google.com/macros/s/AKfycby9RpFiUbYu6YX6JW9XfwbDx36_4AIlGEQMOxR3SnxgNdoRUJKfyxvF3b1SEYwuHb3X/exec";
+const CITIES = ["大和市","海老名市","調布市"];
+const LS_KEY = (city) => `junkai:city:${city}`;
 
-  // ===== モーダル（シンプル） =====
-  let timer=null, prog=0;
-  function showProgress(title){
-    document.getElementById('progressTitle').textContent = title||"同期中…";
-    els.modal.classList.add('show');
-    prog = 0; els.bar.style.width = '0%';
-    timer = setInterval(()=>{ prog = Math.min(99, prog + 3); els.bar.style.width = prog + '%'; }, 100);
+// ====== DOM ======
+const els = {
+  syncBtn: document.getElementById("syncBtn"),
+  recalcBtn: document.getElementById("recalcBtn"),
+  statusText: document.getElementById("statusText"),
+  progressModal: document.getElementById("progressModal"),
+  progressBar: document.getElementById("progressBar"),
+  debugBox: document.getElementById("debugBox"),
+  totals: {
+    "大和市": { done: "#yamato-done", stop: "#yamato-stop", skip: "#yamato-skip", total: "#yamato-total" },
+    "海老名市": { done: "#ebina-done",  stop: "#ebina-stop",  skip: "#ebina-skip",  total: "#ebina-total"  },
+    "調布市": { done: "#chofu-done",  stop: "#chofu-stop",  skip: "#chofu-skip",  total: "#chofu-total"  },
+  },
+};
+
+function showProgress(on, title){
+  if (title) document.getElementById("progressTitle").textContent = title;
+  if (!els.progressModal) return;
+  if (on) els.progressModal.classList.add("show");
+  else els.progressModal.classList.remove("show");
+}
+let progTimer=null, progT=0;
+function startBar(){ progT=0; els.progressBar.style.width='0%'; progTimer=setInterval(()=>{ progT=(progT+6)%100; els.progressBar.style.width=progT+'%'; }, 90); }
+function stopBar(){ if(progTimer){ clearInterval(progTimer); progTimer=null; } els.progressBar.style.width='100%'; setTimeout(()=>{ els.progressBar.style.width='0%'; }, 300); }
+
+function debug(msg){
+  console.log("[SYNC]", msg);
+  if (els.debugBox) els.debugBox.textContent = String(msg).slice(0,2000);
+}
+
+function isHeaderValue(v){
+  const s = String(v||"").trim();
+  return ["city","市区町村","City"].includes(s);
+}
+
+// 正規化（配列 or オブジェクトを想定）
+function normalizeRow(row){
+  if (Array.isArray(row)){
+    const city    = (row[0]??"").toString().trim();
+    const station = (row[1]??"").toString().trim();
+    const model   = (row[2]??"").toString().trim();
+    const number  = (row[3]??"").toString().trim();
+    if (!city || isHeaderValue(city)) return null;
+    return {city, station, model, number, status:"normal", checked:false, index:0, last_inspected_at:""};
+  } else if (row && typeof row === "object"){
+    const city    = (row.city ?? row.cityName ?? row["市区町村"] ?? row["City"] ?? "").toString().trim();
+    const station = (row.station ?? row.stationName ?? row["ステーション"] ?? row["Station"] ?? "").toString().trim();
+    const model   = (row.model ?? row["車種名"] ?? row["Model"] ?? "").toString().trim();
+    const number  = (row.number ?? row.plate_full ?? row.plate ?? row["登録番号"] ?? row["Plate"] ?? "").toString().trim();
+    const status  = (row.status ?? "normal").toString().trim();
+    const checked = !!row.checked;
+    let index     = Number.isFinite(+row.index) ? parseInt(row.index,10) : 0;
+    const last_inspected_at = (row.last_inspected_at ?? "").toString().trim();
+    if (!city || isHeaderValue(city)) return null;
+    return {city, station, model, number, status, checked, index, last_inspected_at};
   }
-  function hideProgress(doneTitle){
-    if (doneTitle) document.getElementById('progressTitle').textContent = doneTitle;
-    if (timer){ clearInterval(timer); timer=null; }
-    els.bar.style.width = '100%';
-    setTimeout(()=> els.modal.classList.remove('show'), 350);
-  }
+  return null;
+}
 
-  // ===== 正規化 =====
-  function normalizeRecord(x){
-    if (Array.isArray(x)){ // 配列の配列対応
-      const city = (x[0]||"").toString().trim();
-      const station = (x[1]||"").toString().trim();
-      const model = (x[2]||"").toString().trim();
-      const number = (x[3]||"").toString().trim();
-      const status = (x[4]||"normal").toString().trim();
-      const checked = !!x[5];
-      let index = parseInt(x[6],10); if(!Number.isFinite(index)||index<1) index=0;
-      const last = (x[7]||"").toString().trim();
-      return {city, station, model, number, status, checked, index, last_inspected_at:last};
-    }
-    // レコード対応（多言語キー吸収）
-    const city = (x.city ?? x['市区町村'] ?? x.cityName ?? "").toString().trim();
-    const station = (x.station ?? x['ステーション'] ?? x.stationName ?? "").toString().trim();
-    const model = (x.model ?? x['車種'] ?? x['車種名'] ?? "").toString().trim();
-    const number = (x.number ?? x.plate_full ?? x.plate ?? x['登録番号'] ?? "").toString().trim();
-    const status = (x.status ?? "normal").toString().trim();
-    const checked = !!x.checked;
-    let index = parseInt(x.index,10); if(!Number.isFinite(index)||index<1) index=0;
-    const last = (x.last_inspected_at ?? "").toString().trim();
-    return {city, station, model, number, status, checked, index, last_inspected_at:last};
-  }
-
-  function readCity(city){
-    try{
-      const s = localStorage.getItem(LS_KEY(city));
-      if(!s) return [];
-      const arr = JSON.parse(s);
-      return Array.isArray(arr) ? arr : [];
-    }catch(e){ return []; }
-  }
-
-  function writeCity(city, arr){
-    localStorage.setItem(LS_KEY(city), JSON.stringify(arr));
-  }
-
-  function recalcAll(){
-    let overall=0;
-    for(const city of CITIES){
-      const arr = readCity(city);
-      overall += arr.length;
-      const cnt = {done:0, stop:0, skip:0, total:arr.length};
-      for(const it of arr){
-        if (it.status==="stop") cnt.stop++;
-        else if (it.status==="skip") cnt.skip++;
-        if (it.checked || it.status==="done") cnt.done++;
+// 受信ペイロードから配列を抽出
+function extractRows(payload){
+  if (Array.isArray(payload)) return payload;
+  if (payload && typeof payload === "object"){
+    if (Array.isArray(payload.data)) return payload.data;
+    if (Array.isArray(payload.rows)) return payload.rows;
+    if (Array.isArray(payload.values)) return payload.values;
+    // city ごとに分かれたオブジェクト形式 { yamato:[], ebina:[], chofu:[] }
+    const keys = Object.keys(payload);
+    const cityBuckets = [];
+    for (const k of keys){
+      const v = payload[k];
+      if (Array.isArray(v) && ["yamato","ebina","chofu","大和市","海老名市","調布市"].includes(k)){
+        const cityName = (k==="yamato"?"大和市":k==="ebina"?"海老名市":k==="chofu"?"調布市":k);
+        for (const r of v){
+          const obj = normalizeRow(r) || {};
+          obj.city = cityName;
+          cityBuckets.push(obj);
+        }
+        return cityBuckets; // 既に city 付与済み配列
       }
-      const map = els.totals[city];
-      $(map.done).textContent = cnt.done;
-      $(map.stop).textContent = cnt.stop;
-      $(map.skip).textContent = cnt.skip;
-      $(map.total).textContent = cnt.total;
-    }
-    document.getElementById('overallHint').textContent = overall>0 ? `総件数：${overall}` : 'まだ同期されていません';
-  }
-
-  // ===== 同期 =====
-  async function doSync(){
-    try{
-      showProgress('同期中…');
-      els.status.textContent = 'GAS からデータ取得中…';
-
-      const url = `${GAS_URL}?action=pull&ts=${Date.now()}`;
-      const res = await fetch(url, {cache:'no-store'});
-      if(!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      let payload;
-      try{ payload = await res.json(); }catch(_){ payload = null; }
-      let rows = [];
-      // 3パターン対応
-      if (Array.isArray(payload)) rows = payload;
-      else if (payload && Array.isArray(payload.data)) rows = payload.data;
-      else if (payload && payload.ok && Array.isArray(payload.rows)) rows = payload.rows;
-      else if (payload && payload.ok && Array.isArray(payload.data)) rows = payload.data;
-      else throw new Error('JSON形式が想定外です');
-
-      // 仕分け
-      const buckets = {"大和市":[],"海老名市":[],"調布市":[]};
-      for(const r of rows){
-        const rec = normalizeRecord(r);
-        if (buckets[rec.city]) buckets[rec.city].push(rec);
-      }
-      for(const city of CITIES){
-        writeCity(city, buckets[city]);
-      }
-      recalcAll();
-      els.status.textContent = '同期完了！';
-      hideProgress('同期完了！');
-    }catch(err){
-      console.error(err);
-      els.status.textContent = `同期エラー：${err.message||err}`;
-      hideProgress('同期失敗');
-      alert('同期に失敗しました：' + (err?.message||'不明なエラー'));
     }
   }
+  return [];
+}
 
-  // ===== イベント =====
-  if (els.syncBtn && !els.syncBtn._wired){ els.syncBtn.addEventListener('click', doSync); els.syncBtn._wired=true; }
-  if (els.recalcBtn && !els.recalcBtn._wired){ els.recalcBtn.addEventListener('click', recalcAll); els.recalcBtn._wired=true; }
-  recalcAll();
-  </script>
+// 集計の再計算と表示
+function recalcAll(){
+  let overall = 0;
+  for (const city of CITIES){
+    const arr = readCity(city);
+    overall += arr.length;
+    const cnt = { done:0, stop:0, skip:0, total:arr.length };
+    for (const it of arr){
+      if (it.status==="stop") cnt.stop++;
+      else if (it.status==="skip") cnt.skip++;
+      if (it.checked || it.status==="done") cnt.done++;
+    }
+    const map = els.totals[city];
+    document.querySelector(map.done ).textContent = cnt.done;
+    document.querySelector(map.stop ).textContent = cnt.stop;
+    document.querySelector(map.skip ).textContent = cnt.skip;
+    document.querySelector(map.total).textContent = cnt.total;
+  }
+  const hint = document.getElementById("overallHint");
+  hint.textContent = overall>0 ? `総件数：${overall}` : "まだ同期されていません";
+}
+
+function readCity(city){
+  try{
+    const s = localStorage.getItem(LS_KEY(city));
+    if (!s) return [];
+    const a = JSON.parse(s);
+    return Array.isArray(a)?a:[];
+  }catch(_){ return []; }
+}
+
+async function doSync(){
+  try{
+    showProgress(true, "同期中…"); startBar();
+    els.statusText.textContent = "GASへ問い合わせ中…";
+
+    const res = await fetch(`${GAS_URL}?action=pull&ts=${Date.now()}`, { method:"GET", headers:{ "Cache-Control":"no-cache" } });
+    const text = await res.text();
+    let payload = {};
+    try { payload = JSON.parse(text); } catch(_){ payload = {}; }
+    debug(`HTTP ${res.status}\n型: ${Array.isArray(payload)?"Array":typeof payload}\nプレビュー: ${text.slice(0,200)}…`);
+
+    // 配列抽出
+    let rows = extractRows(payload);
+    if (!Array.isArray(rows)) rows = [];
+    // 正規化
+    const normalized = [];
+    for (const r of rows){
+      const n = normalizeRow(r);
+      if (n && CITIES.includes(n.city)) normalized.push(n);
+    }
+
+    // 都市別バケット
+    const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
+    for (const rec of normalized){
+      buckets[rec.city].push(rec);
+    }
+
+    // 保存
+    for (const city of CITIES){
+      localStorage.setItem(LS_KEY(city), JSON.stringify(buckets[city]));
+    }
+    els.statusText.textContent = `同期完了：大和${buckets["大和市"].length} / 海老名${buckets["海老名市"].length} / 調布${buckets["調布市"].length}`;
+    debug(`保存件数 大和:${buckets["大和市"].length} 海老名:${buckets["海老名市"].length} 調布:${buckets["調布市"].length}`);
+
+    recalcAll();
+  }catch(err){
+    console.error(err);
+    els.statusText.textContent = "同期失敗：通信または解析エラー";
+    debug(String(err && err.message || err));
+  }finally{
+    stopBar(); setTimeout(()=>showProgress(false,"同期完了！"), 350);
+  }
+}
+
+els.syncBtn.addEventListener("click", doSync);
+els.recalcBtn.addEventListener("click", recalcAll);
+recalcAll();
+</script>
 </body>
 </html>
