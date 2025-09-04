@@ -3,24 +3,24 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>巡回リスト</title>
-  <link rel="stylesheet" href="style.css?v=5m" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="ver">v5n</div>
   <header class="appbar">
-    <div class="row">
-      <div style="width:70px"></div>
-      <div class="title">巡回リスト</div>
-      <div><button id="syncBtn" class="btn btn-primary">同期</button></div>
+    <div class="title">巡回リスト</div>
+    <div class="btns">
+      <button id="syncBtn" class="btn primary">同期</button>
     </div>
   </header>
 
   <main class="wrap">
-    <div id="statusText" class="hint">GASから取得して各エリアへ保存します。</div>
+    <p id="statusText" class="hint">GASから取得して各エリアに保存します。</p>
 
     <section class="cards">
-      <a class="card" href="yamato.html">
+      <a class="cardlink" href="yamato.html">
         <h2>大和市</h2>
         <div class="meta">
           <span class="chip">済 <span id="yamato-done">0</span></span>
@@ -29,7 +29,8 @@
           <span class="chip">総 <span id="yamato-total">0</span></span>
         </div>
       </a>
-      <a class="card" href="ebina.html">
+
+      <a class="cardlink" href="ebina.html">
         <h2>海老名市</h2>
         <div class="meta">
           <span class="chip">済 <span id="ebina-done">0</span></span>
@@ -38,7 +39,8 @@
           <span class="chip">総 <span id="ebina-total">0</span></span>
         </div>
       </a>
-      <a class="card" href="chofu.html">
+
+      <a class="cardlink" href="chofu.html">
         <h2>調布市</h2>
         <div class="meta">
           <span class="chip">済 <span id="chofu-done">0</span></span>
@@ -48,21 +50,20 @@
         </div>
       </a>
     </section>
+
+    <p id="overallHint" class="empty">まだ同期されていません</p>
   </main>
 
-  <div id="progressModal" class="modal">
+  <div id="progressModal" class="modal" aria-hidden="true">
     <div class="dialog">
-      <div id="progressTitle">同期中…</div>
+      <h3 id="progressTitle">同期中…</h3>
       <div class="barwrap"><div id="progressBar" class="bar"></div></div>
     </div>
   </div>
 
-  <div class="ver">v5m</div>
-
-  <script src="app.js?v=5m"></script>
+  <script src="app.js"></script>
   <script>
-    // index 初期化
-    window.addEventListener('DOMContentLoaded', ()=> Junkai.initIndex());
+    Junkai.initIndex();
   </script>
 </body>
 </html>

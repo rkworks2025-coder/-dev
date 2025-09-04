@@ -3,29 +3,26 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>大和市｜巡回</title>
-  <link rel="stylesheet" href="style.css?v=5m" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>大和市</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="ver">v5n</div>
   <header class="appbar">
-    <div class="row">
-      <a class="btn" href="index.html">戻る</a>
-      <div class="title">大和市</div>
-      <div style="width:70px"></div>
-    </div>
+    <a class="btn" href="index.html">戻る</a>
+    <div class="title" style="margin:0 auto;">大和市</div>
+    <div style="width:70px"></div>
   </header>
 
   <main class="wrap">
-    <div id="hint" class="hint">同期後に表示されます。</div>
+    <p id="hint" class="hint">同期後に表示されます。</p>
     <div id="list" class="list"></div>
   </main>
 
-  <div class="ver">v5m</div>
-
-  <script src="app.js?v=5m"></script>
+  <script src="app.js"></script>
   <script>
-    window.addEventListener('DOMContentLoaded', ()=> Junkai.renderCity("大和市"));
+    Junkai.initCity("大和市");
   </script>
 </body>
 </html>

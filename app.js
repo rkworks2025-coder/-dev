@@ -1,238 +1,264 @@
 
-// ====== Junkai shared/app logic (v5m) ======
+// ====== 設定 ======
 const Junkai = (()=>{
+
   const GAS_URL = "https://script.google.com/macros/s/AKfycby9RpFiUbYu6YX6JW9XfwbDx36_4AIlGEQMOxR3SnxgNdoRUJKfyxvF3b1SEYwuHb3X/exec";
+  const TIRE_APP_URL = "https://rkworks2025-coder.github.io/r.k.w-/";
   const CITIES = ["大和市","海老名市","調布市"];
-  const LS_KEY = (city)=> `junkai:city:${city}`;
-  const LATEST_AT = "junkai:lastSyncedAt";
+  const PREFIX = { "大和市":"Y", "海老名市":"E", "調布市":"C" };
+  const LS_KEY = (c) => `junkai:city:${c}`;
+  const TIMEOUT_MS = 15000;
+  const DEBUG_ERRORS = true;
 
-  function saveCity(city, arr){ localStorage.setItem(LS_KEY(city), JSON.stringify(arr||[])); }
-  function readCity(city){
-    try{
-      const s = localStorage.getItem(LS_KEY(city));
-      if(!s) return [];
-      const a = JSON.parse(s);
-      return Array.isArray(a)? a: [];
-    }catch(_){ return []; }
+  // ===== utils =====
+  const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
+
+  function showProgress(on, pct){
+    const m = document.getElementById('progressModal');
+    const bar = document.getElementById('progressBar');
+    if(!m) return;
+    if(on) m.classList.add('show'); else m.classList.remove('show');
+    if(bar && typeof pct==='number') bar.style.width = Math.max(0,Math.min(100,pct)) + '%';
+  }
+  function status(txt){
+    const el = document.getElementById('statusText'); if(el) el.textContent = txt;
   }
 
-  function normalizeRecord(r, i0=0){
-    const city = (r.city||"").trim();
-    const station = (r.station||"").trim();
-    const model = (r.model||"").trim();
-    const number = (r.number||"").trim();
-    const status = (r.status||"normal").trim(); // normal/stop/skip/done
-    const checked = !!r.checked;
-    let index = Number.isFinite(+r.index) ? parseInt(r.index,10) : 0;
-    if(index<1) index = i0;
-    const last_inspected_at = (r.last_inspected_at||"").trim();
-    return {city,station,model,number,status,checked,index,last_inspected_at};
-  }
-
-  // robust fetch with timeout, retries, cache-bust, tolerant JSON parsing
-  async function fetchJSONWithRetry(url,{retries=2, timeoutMs=12000}={}){
-    let err;
-    for(let attempt=0; attempt<=retries; attempt++){
-      const ctrl = new AbortController();
-      const tid = setTimeout(()=> ctrl.abort(), timeoutMs);
-      try{
-        const res = await fetch(url, {method:"GET", cache:"no-store",
-          headers:{"Cache-Control":"no-cache"}, redirect:"follow", signal:ctrl.signal});
-        clearTimeout(tid);
-        const text = await res.text();
-        // Try JSON parse even if content-type is off
-        let json; try { json = JSON.parse(text); } catch(_) { json = null; }
-        if(!json){
-          // try to strip BOM
-          const t2 = text.replace(/^\uFEFF/,"");
-          try { json = JSON.parse(t2); } catch(_){}
-        }
-        if(json) return json;
-        err = new Error("invalid json");
-      }catch(e){
-        err = e;
-      }
-      await new Promise(r=> setTimeout(r, 600*(attempt+1)));
-    }
-    throw err || new Error("fetch failed");
-  }
-
-  async function syncAll(setProgress){
-    const ts = Date.now();
-    const url = `${GAS_URL}?action=pull&_=${ts}`;
-
-    setProgress && setProgress(10, "GASへ問い合わせ中…");
-    let json;
-    try{
-      json = await fetchJSONWithRetry(url,{retries:2, timeoutMs:15000});
-    }catch(e){
-      throw new Error("通信エラー");
-    }
-
-    // accept {ok:true,data:[...]}, or direct array, or {records:[...]}
-    const arr = Array.isArray(json) ? json
-              : Array.isArray(json.data) ? json.data
-              : Array.isArray(json.records) ? json.records
-              : [];
-
-    if(!arr.length){
-      throw new Error("データ空（GAS応答に配列が見つかりません）");
-    }
-
-    const buckets = {"大和市":[], "海老名市":[], "調布市":[]};
-    let i = 1;
-    for(const r of arr){
-      const city = (r.city||"").trim();
-      if(!buckets[city]) continue;
-      const rec = normalizeRecord(r, i++);
-      buckets[city].push(rec);
-    }
-
-    // Only overwrite localStorage when bucket has items -> atomic update
-    for(const city of CITIES){
-      if(buckets[city].length>0){
-        saveCity(city, buckets[city]);
-      }
-    }
-    localStorage.setItem(LATEST_AT, String(new Date().toISOString()));
-    setProgress && setProgress(95, "件数集計…");
-    updateIndexTotals();
-    setProgress && setProgress(100, "同期完了");
-    return buckets;
-  }
-
-  function countFrom(arr){
-    const cnt = {done:0, stop:0, skip:0, total:arr.length};
-    for(const it of arr){
-      if(it.status === "stop") cnt.stop++;
-      else if(it.status === "skip") cnt.skip++;
-      if(it.checked || it.status === "done") cnt.done++;
-    }
-    return cnt;
-  }
-
-  function updateIndexTotals(){
-    const cities = [
-      ["yamato","大和市"],
-      ["ebina","海老名市"],
-      ["chofu","調布市"]
-    ];
-    for(const [key,city] of cities){
-      const a = readCity(city);
-      const c = countFrom(a);
-      const qs = (id)=>document.getElementById(`${key}-${id}`);
-      const map = {done:qs("done"), stop:qs("stop"), skip:qs("skip"), total:qs("total")};
-      if(map.done){ map.done.textContent = c.done; }
-      if(map.stop){ map.stop.textContent = c.stop; }
-      if(map.skip){ map.skip.textContent = c.skip; }
-      if(map.total){ map.total.textContent = c.total; }
-    }
-  }
-
-  // ===== index page =====
-  function initIndex(){
-    const modal = document.getElementById("progressModal");
-    const bar = document.getElementById("progressBar");
-    const status = document.getElementById("statusText");
-    const syncBtn = document.getElementById("syncBtn");
-
-    const setProgress = (pct, text)=>{
-      if(modal) modal.classList.add("show");
-      if(bar) bar.style.width = `${Math.max(0,Math.min(100,pct))}%`;
-      if(status && text) status.textContent = text;
+  function normalize(r){
+    return {
+      city: (r.city||'').trim(),
+      station: (r.station||'').trim(),
+      model: (r.model||'').trim(),
+      number: (r.number||'').trim(),
+      status: (r.status||'normal').trim(),
+      checked: !!r.checked,
+      index: (Number.isFinite(+r.index) && +r.index>0)? parseInt(r.index,10) : 0,
+      last_inspected_at: (r.last_inspected_at||'').trim(),
+      ui_index: r.ui_index || '',
+      ui_index_num: r.ui_index_num || 0
     };
+  }
 
-    updateIndexTotals();
-    if(syncBtn){
-      syncBtn.addEventListener("click", async ()=>{
-        try{
-          setProgress(5, "開始…");
-          await syncAll(setProgress);
-          status.textContent = "同期完了！";
-        }catch(e){
-          status.textContent = `同期失敗：${e && e.message ? e.message : "通信または解析エラー"}`;
-        }finally{
-          setTimeout(()=> modal && modal.classList.remove("show"), 600);
+  async function fetchJSONWithRetry(url, retry=2){
+    let lastErr = null;
+    for(let i=0;i<=retry;i++){ 
+      try{
+        const ctl = new AbortController();
+        const t = setTimeout(()=>ctl.abort(), TIMEOUT_MS);
+        const res = await fetch(url, { method:'GET', cache:'no-store', redirect:'follow', signal: ctl.signal });
+        clearTimeout(t);
+        const raw = await res.text();
+        // try parse JSON (strip BOM)
+        const text = raw.replace(/^\ufeff/, '');
+        let json = null;
+        try{ json = JSON.parse(text); }
+        catch(e){ 
+          if(DEBUG_ERRORS) console.warn('JSON parse fail, first 200 chars:', text.slice(0,200));
+          throw new Error('parse-fail');
         }
-      });
+        return json;
+      }catch(e){
+        lastErr = e;
+        await sleep(400*(i+1));
+      }
+    }
+    throw lastErr || new Error('fetch-fail');
+  }
+
+  function saveCity(city, arr){
+    localStorage.setItem(LS_KEY(city), JSON.stringify(arr));
+  }
+  function readCity(city){
+    try{ const s = localStorage.getItem(LS_KEY(city)); if(!s) return []; const a = JSON.parse(s); return Array.isArray(a)? a:[]; }catch(_){ return []; }
+  }
+
+  function applyUIIndex(city, arr){
+    // cityごとに 1..N 採番して UI表示用に保存
+    const p = PREFIX[city] || '';
+    for(let i=0;i<arr.length;i++){
+      arr[i].ui_index_num = i+1;
+      arr[i].ui_index = p + (i+1);
     }
   }
 
-  // ===== city page render =====
-  const SEVEN = 7*24*60*60*1000;
-  const within7 = (ts)=>{
-    if(!ts) return false;
-    const t = Date.parse(ts); if(!Number.isFinite(t)) return false;
-    return (Date.now()-t) < SEVEN;
-  };
-  const rowClass = (rec)=> rec.checked ? "bg-pink" :
-                     rec.status==="stop" ? "bg-gray" :
-                     rec.status==="skip" ? "bg-yellow" :
-                     within7(rec.last_inspected_at) ? "bg-blue" : "bg-green";
-
-  function renderCity(city){
-    const list = document.getElementById("list");
-    const hint = document.getElementById("hint");
-    const data = readCity(city);
-    list.innerHTML="";
-    if(!data.length){ hint.textContent="まだ同期されていません（インデックスで同期）"; return; }
-    hint.textContent = `件数：${data.length}`;
-
-    // 再割当：ページ側の通し番号を E/Y/C + 1..N で振る（numberに紐付け）
-    const prefix = city==="海老名市" ? "E" : city==="大和市" ? "Y" : "C";
-    const reindexed = data.map((rec, i)=> ({...rec, ui_index:`${prefix}${i+1}`}));
-
-    for(const rec of reindexed){
-      const card = document.createElement("div");
-      card.className = `rowcard ${rowClass(rec)}`;
-
-      const idx = document.createElement("div");
-      idx.className="idx"; idx.textContent = rec.ui_index || "-";
-
-      const content = document.createElement("div");
-      content.className="content";
-      const l1 = document.createElement("div"); l1.className="title-line"; l1.textContent = rec.station || "(無名)";
-      const l2 = document.createElement("div"); l2.className="meta-line"; l2.textContent = `${rec.model || ""}　${rec.number || ""}`;
-      content.appendChild(l1); content.appendChild(l2);
-
-      const actions = document.createElement("div");
-      actions.className="actions";
-
-      const sel = document.createElement("select");
-      sel.className="state-select";
-      [["normal","通常"],["stop","停止"],["skip","不要"]].forEach(([v,lab])=>{
-        const o = document.createElement("option"); o.value=v; o.textContent=lab; if(rec.status===v) o.selected=true; sel.appendChild(o);
-      });
-      sel.addEventListener("change", ()=>{
-        rec.status = sel.value;
-        persist(city, rec);
-        card.className = `rowcard ${rowClass(rec)}`;
-      });
-
-      const btn = document.createElement("button");
-      btn.className="btn-mini"; btn.textContent="点検";
-      btn.addEventListener("click", ()=>{
-        const q = new URLSearchParams({station:rec.station||"", model:rec.model||"", number:rec.number||""});
-        const target = "https://rkworks2025-coder.github.io/r.k.w-/index.html?" + q.toString();
-        window.location.href = target;
-      });
-
-      actions.appendChild(sel); actions.appendChild(btn);
-
-      card.appendChild(idx);
-      card.appendChild(content);
-      card.appendChild(actions);
-
-      list.appendChild(card);
+  function countCity(arr){
+    const c = {done:0, stop:0, skip:0, total:arr.length};
+    for(const it of arr){
+      if(it.status==='stop') c.stop++;
+      else if(it.status==='skip') c.skip++;
+      if(it.checked || it.status==='done') c.done++;
     }
+    return c;
   }
 
-  function persist(city, rec){
+  function repaintCounters(){
+    const map = {
+      "大和市":    {done:'#yamato-done', stop:'#yamato-stop', skip:'#yamato-skip', total:'#yamato-total'},
+      "海老名市":  {done:'#ebina-done',  stop:'#ebina-stop',  skip:'#ebina-skip',  total:'#ebina-total'},
+      "調布市":    {done:'#chofu-done',  stop:'#chofu-stop',  skip:'#chofu-skip',  total:'#chofu-total'},
+    };
+    let overall = 0;
+    for(const city of CITIES){
+      const arr = readCity(city);
+      const cnt = countCity(arr);
+      overall += cnt.total;
+      const m = map[city];
+      for(const k of ['done','stop','skip','total']){
+        const el = document.querySelector(m[k]); if(el) el.textContent = cnt[k];
+      }
+    }
+    const hint = document.getElementById('overallHint');
+    if(hint) hint.textContent = overall>0 ? `総件数：${overall}` : 'まだ同期されていません';
+  }
+
+  // ====== public init for index ======
+  async function initIndex(){
+    repaintCounters();
+    const btn = document.getElementById('syncBtn');
+    if(!btn) return;
+    btn.addEventListener('click', async()=>{
+      try{
+        showProgress(true, 5);
+        status('開始…');
+        const u = `${GAS_URL}?action=pull&_=${Date.now()}`;
+        status('GASへ問い合わせ中…');
+        showProgress(true, 35);
+        const json = await fetchJSONWithRetry(u, 2);
+        showProgress(true, 55);
+        if(!json || json.ok!==true || !Array.isArray(json.data)) throw new Error('bad-shape');
+
+        const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
+        for(const r of json.data){
+          const city = (r.city||'').trim();
+          if(!buckets[city]) continue;
+          const rec = normalize(r);
+          buckets[city].push(rec);
+        }
+
+        // 成功時のみ保存（空配列なら上書きしない）
+        let wrote = 0;
+        for(const city of CITIES){
+          if(buckets[city].length>0){
+            applyUIIndex(city, buckets[city]);
+            saveCity(city, buckets[city]);
+            wrote++;
+          }
+        }
+
+        if(wrote===0){ status('同期失敗：データが空でした（既存データは保持）'); showProgress(false); return; }
+
+        repaintCounters();
+        showProgress(true, 100);
+        status(`同期完了：大和${buckets['大和市'].length||0} / 海老名${buckets['海老名市'].length||0} / 調布${buckets['調布市'].length||0}`);
+      }catch(e){
+        console.error('sync error', e);
+        status('同期失敗：通信または解析エラー（既存データは保持）');
+      }finally{ setTimeout(()=>showProgress(false), 350); }
+    });
+  }
+
+  // ===== City page =====
+  function within7d(last){
+    if(!last) return false;
+    const t = Date.parse(last);
+    if(!Number.isFinite(t)) return false;
+    return (Date.now() - t) < (7*24*60*60*1000);
+  }
+  function rowBg(rec){
+    if(rec.checked) return 'bg-pink';
+    if(rec.status==='stop') return 'bg-gray';
+    if(rec.status==='skip') return 'bg-yellow';
+    if(within7d(rec.last_inspected_at)) return 'bg-blue';
+    return 'bg-green';
+  }
+
+  function mountCity(city){
+    const list = document.getElementById('list');
+    const hint = document.getElementById('hint');
+    list.innerHTML = '';
     const arr = readCity(city);
-    const i = arr.findIndex(x=> (x.number||"") === (rec.number||""));
+    if(arr.length===0){ hint.textContent='まだ同期されていません（インデックスの同期を押してください）'; return; }
+    hint.textContent = `件数：${arr.length}`;
+
+    // city内採番を信頼
+    for(const rec of arr){
+      const row = document.createElement('div');
+      row.className = `row ${rowBg(rec)}`;
+
+      const left = document.createElement('div');
+      left.className='idx';
+      left.textContent = rec.ui_index || '';
+
+      const mid = document.createElement('div');
+      mid.className='mid';
+
+      const title = document.createElement('div');
+      title.className='title';
+      title.textContent = rec.station || '';
+
+      const sub = document.createElement('div');
+      sub.className='sub';
+      sub.textContent = `${rec.model||''}　${rec.number||''}`;
+
+      mid.appendChild(title); mid.appendChild(sub);
+
+      const right = document.createElement('div');
+      right.className='rightcol';
+
+      const sel = document.createElement('select');
+      sel.className='state';
+      [['normal','通常'],['stop','停止'],['skip','不要']].forEach(([v,lab])=>{ 
+        const o=document.createElement('option'); o.value=v; o.textContent=lab; if(rec.status===v) o.selected=true; sel.appendChild(o);
+      });
+      sel.addEventListener('change', ()=>{ rec.status = sel.value; persistCityRec(city, rec); row.className = `row ${rowBg(rec)}`; });
+
+      const btn = document.createElement('button');
+      btn.className='btn tiny'; btn.textContent='点検';
+      btn.addEventListener('click', ()=>{
+        const q = new URLSearchParams({ station:rec.station||'', model:rec.model||'', number:rec.number||'' });
+        location.href = `${TIRE_APP_URL}?${q.toString()}`;
+      });
+
+      const chk = document.createElement('input');
+      chk.type='checkbox'; chk.checked=!!rec.checked;
+      chk.addEventListener('change', ()=>{
+        if(!confirm(chk.checked? 'チェックを付けます。よろしいですか？' : 'チェックを外します。よろしいですか？')){ chk.checked=!chk.checked; return; }
+        rec.checked = chk.checked;
+        if(rec.checked) rec.last_inspected_at = new Date().toISOString();
+        persistCityRec(city, rec);
+        row.className = `row ${rowBg(rec)}`;
+      });
+
+      // first line row with checkbox and title
+      const firstLine = document.createElement('div');
+      firstLine.style.display = 'flex';
+      firstLine.style.alignItems = 'center';
+      firstLine.style.gap = '10px';
+      firstLine.appendChild(chk);
+      firstLine.appendChild(title);
+      mid.innerHTML = '';
+      mid.appendChild(firstLine);
+      mid.appendChild(sub);
+
+      right.appendChild(sel);
+      right.appendChild(btn);
+
+      row.appendChild(left);
+      row.appendChild(mid);
+      row.appendChild(right);
+      list.appendChild(row);
+    }
+  }
+
+  function persistCityRec(city, rec){
+    const arr = readCity(city);
+    const i = arr.findIndex(x=> (x.number||'')===(rec.number||''));
     if(i>=0) arr[i]=rec; else arr.push(rec);
     saveCity(city, arr);
   }
 
-  return { initIndex, renderCity, readCity };
+  return {
+    initIndex: initIndex,
+    initCity: mountCity,
+  };
 })();
