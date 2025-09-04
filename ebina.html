@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>海老名市｜巡回</title>
+  <style>
+    :root{--fg:#0e1a2b;--muted:#64748b;--border:#e6e8ef;
+          --green:#e8f7ec;--pink:#ffeaf1;--gray:#d1d5db;--yellow:#fff9db;--blue:#e8f2ff;}
+    *{box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans JP','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
+         margin:0;background:#f6f7fb;color:var(--fg)}
+    .appbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;
+             padding:14px 16px;background:#fff;border-bottom:1px solid var(--border)}
+    .title{font-size:18px;font-weight:800;}
+    .btn{appearance:none;border:1px solid var(--border);background:#fff;border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;text-decoration:none;color:inherit}
+    .wrap{max-width:860px;margin:18px auto;padding:0 14px 60px}
+    .hint{margin:6px 2px 14px;color:var(--muted);font-size:13px}
+    .row{display:grid;grid-template-columns:28px 28px 1fr auto;align-items:center;gap:8px;border:1px solid var(--border);
+          background:#fff;border-radius:12px;padding:10px 10px}
+    .row + .row{margin-top:10px}
+    .idx{width:28px;text-align:right;font-weight:700;color:#334155}
+    .chk{margin:0 4px}
+    .fields{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .line1{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .line2{font-size:12px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .right{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+    .state-select{padding:6px 8px;border:1px solid var(--border);border-radius:10px;background:#fff;font-size:12px}
+    .inspect-btn{padding:6px 10px;border:1px solid var(--border);border-radius:10px;background:#fff;font-size:12px}
+    .date-badge{margin-left:8px;display:flex;flex-direction:column;line-height:1.0;align-items:flex-end}
+    .date-badge .md{font-size:12px;color:#0f172a}
+    .date-badge .hm{font-size:11px;color:#64748b;margin-top:2px}
+    .bg-green{background:var(--green)}
+    .bg-pink{background:var(--pink)}
+    .bg-gray{background:var(--gray)}
+    .bg-yellow{background:var(--yellow)}
+    .bg-blue{background:var(--blue)}
+  </style>
+</head>
+<body>
+  <header class="appbar">
+    <div class="title">海老名市</div>
+    <div class="btns">
+      <a class="btn" href="index.html">戻る</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p id="hint" class="hint">同期後に表示されます。</p>
+    <div id="list"></div>
+  </main>
+
+  <script>
+  const CITY = "海老名市";
+  const LS_KEY = (city)=>`junkai:city:${city}`;
+  const SEVEN = 7*24*60*60*1000;
+
+  function readCity(city){
+    try{const s=localStorage.getItem(LS_KEY(city));if(!s)return[];const a=JSON.parse(s);return Array.isArray(a)?a:[]}catch(_ ){return[]}
+  }
+
+  function within7d(lastAt){
+    if(!lastAt) return false;
+    const t = Date.parse(lastAt);
+    if(!Number.isFinite(t)) return false;
+    return (Date.now()-t) < SEVEN;
+  }
+
+  function rowClass(rec){
+    if (rec.checked) return "bg-pink";
+    if (within7d(rec.last_inspected_at)) return "bg-blue";
+    if (rec.status === "stop") return "bg-gray";
+    if (rec.status === "skip") return "bg-yellow";
+    return "bg-green";
+  }
+
+  function formatBadge(iso){
+    if(!iso) return { md:"", hm:"" };
+    const d = new Date(iso);
+    const md = `${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`;
+    const hm = `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+    return { md, hm };
+  }
+
+  function updateBadge(rec, rowEl){
+    const badge = rowEl.querySelector('.date-badge');
+    if(!badge) return;
+    const { md, hm } = formatBadge(rec.last_inspected_at);
+    const mdEl = badge.querySelector('.md');
+    const hmEl = badge.querySelector('.hm');
+    if (mdEl) mdEl.textContent = md || '';
+    if (hmEl) hmEl.textContent = hm || '';
+  }
+
+  function saveLocal(rec){
+    const arr = readCity(CITY);
+    const i = arr.findIndex(x=> (x.number||"") === (rec.number||""));
+    if (i>=0) arr[i]=rec; else arr.push(rec);
+    localStorage.setItem(LS_KEY(CITY), JSON.stringify(arr));
+  }
+
+  function render(){
+    const data = readCity(CITY);
+    const wrap = document.getElementById('list');
+    const hint = document.getElementById('hint');
+    wrap.innerHTML = '';
+    if(data.length===0){ hint.textContent='まだ同期されていません（インデックスの同期を押してください）'; return; }
+    hint.textContent = `件数：${data.length}`;
+
+    data.sort((a,b)=>{
+      const ai=(+a.index>0?+a.index:1e9), bi=(+b.index>0?+b.index:1e9);
+      return ai-bi || String(a.station||'').localeCompare(String(b.station||''),'ja');
+    });
+
+    for(const rec of data){
+      const div = document.createElement('div');
+      div.className = `row ${rowClass(rec)}`;
+
+      const idx = document.createElement('div');
+      idx.className='idx';
+      idx.textContent = String(+rec.index>0 ? rec.index : '-');
+
+      const chk = document.createElement('input');
+      chk.type='checkbox';
+      chk.className='chk';
+      chk.checked = !!rec.checked;
+
+      chk.addEventListener('change', ()=>{
+        const next = chk.checked;
+        const ok = confirm(next ? 'チェックを付けます。よろしいですか？' : 'チェックを外します。よろしいですか？');
+        if(!ok){ chk.checked = !next; return; }
+        rec.checked = next;
+        if (next) rec.last_inspected_at = new Date().toISOString();
+        saveLocal(rec);
+        div.className = `row ${rowClass(rec)}`;
+        updateBadge(rec, div);
+      });
+
+      const fields = document.createElement('div');
+      fields.className='fields';
+      const l1=document.createElement('div'); l1.className='line1'; l1.textContent = rec.station || '(無名)';
+      const l2=document.createElement('div'); l2.className='line2'; l2.textContent = `${rec.model||''}　${rec.number||''}`;
+      fields.appendChild(l1); fields.appendChild(l2);
+
+      const badge = document.createElement('div');
+      badge.className='date-badge';
+      badge.innerHTML = '<div class="md"></div><div class="hm"></div>';
+
+      const right = document.createElement('div'); right.className='right';
+
+      const sel = document.createElement('select');
+      sel.className='state-select';
+      [['normal','通常'],['stop','停止'],['skip','不要']].forEach(([v,label])=>{
+        const op=document.createElement('option'); op.value=v; op.textContent=label;
+        if((rec.status||'normal')===v) op.selected=true; sel.appendChild(op);
+      });
+      sel.addEventListener('change', ()=>{
+        rec.status = sel.value;
+        saveLocal(rec);
+        div.className = `row ${rowClass(rec)}`;
+      });
+
+      const btn = document.createElement('button');
+      btn.className='inspect-btn';
+      btn.type='button';
+      btn.textContent='点検';
+      btn.addEventListener('click', ()=>{
+        // 次版でURL配線予定
+      });
+
+      right.appendChild(sel);
+      right.appendChild(btn);
+
+      div.appendChild(idx);
+      div.appendChild(chk);
+      div.appendChild(fields);
+      div.appendChild(badge);
+      div.appendChild(right);
+
+      wrap.appendChild(div);
+      updateBadge(rec, div);
+    }
+  }
+
+  render();
+  </script>
+</body>
+</html>
