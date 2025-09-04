@@ -1,66 +1,54 @@
-
 :root{
-  --fg:#0f172a; --muted:#64748b; --bg:#f6f7fb; --card:#ffffff; --bd:#e6e8ef;
-  --accent:#2563eb; --chip:#eff4ff;
-  --green:#e8f7ec; --pink:#ffeaf1; --gray:#e5e7eb; --yellow:#fff9c2; --blue:#e8f2ff;
-  --gray-strong:#c5cbd3;
+  --accent:#2b6bf6; --fg:#0e1a2b; --muted:#64748b; --chip:#eff4ff;
+  --green:#e8f7ec; --pink:#ffeaf1; --gray:#e5e7eb; --gray-deep:#cbd5e1;
+  --yellow:#fff7c2; --blue:#e8f2ff; --card:#ffffff; --border:#e6e8ef;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
-     background:var(--bg); color:var(--fg)}
-/* Appbar */
-.appbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;background:#fff;border-bottom:1px solid var(--bd)}
-.title{font-size:20px;font-weight:800;letter-spacing:.04em}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f6f7fb;color:var(--fg)}
+.appbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid var(--border)}
+.title{font-size:20px;font-weight:800;letter-spacing:.03em}
 .btns{display:flex;gap:10px}
-.btn{appearance:none;border:1px solid var(--bd);padding:8px 14px;border-radius:12px;background:#fff;
-  font-weight:700;font-size:14px;cursor:pointer}
+.btn{appearance:none;border:1px solid #d7dbe7;padding:8px 14px;border-radius:12px;background:#fff;font-weight:700;font-size:14px}
 .btn-primary{background:var(--chip);border-color:#c9d6ff;color:#1e40af}
-.wrap{max-width:880px;margin:18px auto;padding:0 14px 64px}
+.wrap{max-width:860px;margin:18px auto;padding:0 14px 60px}
 .hint{margin:6px 2px 14px;color:var(--muted);font-size:13px}
-
-/* City cards on index */
 .cards{display:grid;grid-template-columns:1fr;gap:14px}
-.card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--bd);
-  border-radius:16px;padding:18px 16px;box-shadow:0 1px 0 rgba(8,15,35,.03)}
+.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 16px;box-shadow:0 1px 0 rgba(8,15,35,.03)}
 .card:hover{background:#fafcff}
-.card h2{margin:0 0 8px 0;font-size:18px;letter-spacing:.03em}
-.meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px}
-.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f2f5fb;border:1px solid var(--bd)}
+.card h2{margin:0 0 8px 0;font-size:18px;letter-spacing:.02em}
+.meta{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f2f5fb;border:1px solid var(--border)}
 .empty{margin:28px 2px 0 2px;color:var(--muted);font-size:14px}
-.muted{color:var(--muted)}
 
-/* Progress modal */
-.modal{position:fixed;inset:0;background:rgba(8,15,35,.5);display:none;align-items:center;justify-content:center;z-index:50}
+/* list rows */
+.list{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;grid-template-columns:28px 28px 1fr 90px;align-items:center;gap:10px;border:1px solid var(--border);background:#fff;border-radius:12px;padding:10px}
+.idx{min-width:28px;text-align:right;color:#64748b;font-weight:700}
+.chk{margin:0}
+.fields{display:flex;flex-direction:column;gap:2px}
+.station{font-weight:800}
+.sub{font-size:12px;color:#475569;display:flex;align-items:center;gap:8px}
+.when{display:flex;flex-direction:column;line-height:1.05;align-items:flex-end}
+.when .md{font-size:12px;color:#0f172a}
+.when .hm{font-size:11px;color:#64748b;margin-top:2px}
+.right{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.state{padding:6px 8px;border:1px solid #d7dbe7;border-radius:8px;background:#fff;font-size:12px}
+.action{padding:6px 10px;border:1px solid #d7dbe7;border-radius:8px;background:#fff;font-weight:700;font-size:12px}
+
+/* colors */
+.bg-green{background:var(--green)}
+.bg-pink{background:var(--pink)}
+.bg-gray{background:var(--gray)}
+.bg-gray-deep{background:var(--gray-deep)}
+.bg-yellow{background:var(--yellow)}
+.bg-blue{background:var(--blue)}
+
+/* progress modal */
+.modal{position:fixed;inset:0;background:rgba(8,15,35,.45);display:none;align-items:center;justify-content:center;z-index:50}
 .modal.show{display:flex}
 .dialog{width:min(520px,90vw);background:#111827;color:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .dialog h3{margin:0 0 8px 0;font-size:18px}
 .barwrap{height:8px;background:#1f2937;border-radius:999px;overflow:hidden;margin-top:12px}
 .bar{height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#a78bfa,#34d399)}
-
-/* City list rows */
-.list{display:flex;flex-direction:column;gap:12px}
-.row{display:grid;grid-template-columns:28px 28px 1fr auto;align-items:center;gap:10px;
-  background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px 12px}
-.idx{width:28px;text-align:right;font-variant-numeric:tabular-nums;color:#94a3b8}
-.chk{margin:0 4px;width:20px;height:20px}
-.fields{display:flex;flex-direction:column;min-width:0}
-.line1{font-weight:800;font-size:18px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.line2{font-size:13px;color:#475569;margin-top:4px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.when{margin-left:8px;display:flex;flex-direction:column;line-height:1.0}
-.when .md{font-size:12px;color:#0f172a}
-.when .hm{font-size:11px;color:#64748b;margin-top:2px}
-.rightcol{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-.state-select{padding:6px 8px;border:1px solid var(--bd);border-radius:10px;background:#fff}
-.btn-mini{padding:6px 10px;border:1px solid var(--bd);border-radius:10px;background:#fff;font-weight:700;font-size:12px;cursor:pointer}
-
-/* State colors */
-.bg-green{background:var(--green)}
-.bg-pink{background:var(--pink)}
-.bg-gray{background:var(--gray-strong)}
-.bg-yellow{background:var(--yellow)}
-.bg-blue{background:var(--blue)}
-
-/* Version tag */
-.ver{position:fixed;right:8px;bottom:6px;font-size:10px;color:#94a3b8;opacity:.7;pointer-events:none;z-index:9}
+.ver{position:fixed;right:8px;bottom:6px;font-size:10px;color:#94a3b8;opacity:.75;pointer-events:none;z-index:9}

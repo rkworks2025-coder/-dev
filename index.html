@@ -1,13 +1,12 @@
-
 <!doctype html>
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>巡回リスト</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20250905" />
 </head>
-<body data-page="index">
+<body>
   <header class="appbar">
     <div class="title">巡回リスト</div>
     <div class="btns">
@@ -20,7 +19,7 @@
     <p id="statusText" class="hint">GASから取得して各エリアに保存・反映します。</p>
 
     <section id="cityCards" class="cards">
-      <a id="card-yamato" class="card" href="yamato.html" data-city="大和市">
+      <a class="card" href="yamato.html">
         <h2>大和市</h2>
         <div class="meta">
           <span class="chip">済 <span id="yamato-done">0</span></span>
@@ -30,7 +29,7 @@
         </div>
       </a>
 
-      <a id="card-ebina" class="card" href="ebina.html" data-city="海老名市">
+      <a class="card" href="ebina.html">
         <h2>海老名市</h2>
         <div class="meta">
           <span class="chip">済 <span id="ebina-done">0</span></span>
@@ -40,7 +39,7 @@
         </div>
       </a>
 
-      <a id="card-chofu" class="card" href="chofu.html" data-city="調布市">
+      <a class="card" href="chofu.html">
         <h2>調布市</h2>
         <div class="meta">
           <span class="chip">済 <span id="chofu-done">0</span></span>
@@ -61,7 +60,19 @@
     </div>
   </div>
 
-  <div class="ver">v5a</div>
-  <script src="app.js"></script>
+  <div class="ver">v5b</div>
+
+  <script src="app.js?v=20250905"></script>
+  <script>
+    const st = document.getElementById("statusText");
+    document.getElementById("syncBtn").addEventListener("click", ()=>{
+      st.textContent="同期を開始します…";
+      window.__junkai__.syncAll();
+    });
+    document.getElementById("recalcBtn").addEventListener("click", ()=>{
+      window.__junkai__.updateTotals();
+    });
+    window.__junkai__.updateTotals();
+  </script>
 </body>
 </html>
