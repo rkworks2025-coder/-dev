@@ -4,16 +4,13 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>巡回リスト</title>
-  <link rel="stylesheet" href="style.css?v=20250901"/>
+  <link rel="stylesheet" href="style.css?v=v5k"/>
 </head>
 <body>
   <header class="appbar">
     <div class="title">巡回リスト</div>
-    <div class="btns">
-      <button id="syncBtn" class="btn btn-primary">同期</button>
-    </div>
+    <div class="btns"><button id="syncBtn" class="btn btn-primary">同期</button></div>
   </header>
-
   <main class="wrap">
     <p id="statusText" class="hint">GASから取得して各エリアに保存・反映します。</p>
     <section id="cityCards" class="cards">
@@ -47,19 +44,13 @@
     </section>
     <p id="overallHint" class="empty">まだ同期されていません</p>
   </main>
-
   <div id="progressModal" class="modal" aria-hidden="true">
     <div class="dialog">
       <h3 id="progressTitle">同期中…</h3>
       <div class="barwrap"><div id="progressBar" class="bar"></div></div>
     </div>
   </div>
-
-  <div class="ver">v5i</div>
-  <script src="app.js?v=20250901"></script>
-  <script>
-    document.getElementById('syncBtn').addEventListener('click', ()=>{ Junkai.syncFromGAS(); });
-    Junkai.recalcIndexCards();
-  </script>
+  <script src="app.js?v=v5k"></script>
+  <div class="ver">v5k</div>
 </body>
 </html>

@@ -3,84 +3,21 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>大和市</title>
-  <link rel="stylesheet" href="style.css?v=20250901"/>
+  <title>大和市｜巡回</title>
+  <link rel="stylesheet" href="style.css?v=v5k"/>
 </head>
 <body>
   <header class="appbar">
-    <div class="header-row" style="width:100%">
-      <div class="left"><a class="btn" href="index.html">戻る</a></div>
-      <div class="center">大和市</div>
-      <div class="right"></div>
-    </div>
+    <div class="btns"><a class="btn" href="index.html">戻る</a></div>
+    <div class="title">大和市</div>
+    <div style="width:84px"></div>
   </header>
-
   <main class="wrap">
-    <div class="hint">件数：<span id="count">0</span></div>
-    <div id="list" class="list"></div>
+    <p id="hint" class="hint">同期後に表示されます。</p>
+    <div id="list"></div>
   </main>
-
-  <div class="ver">v5i</div>
-  <script src="app.js?v=20250901"></script>
-  <script>
-  (function(){
-    const CITY = "大和市";
-    const TIRE_URL = "https://rkworks2025-coder.github.io/r.k.w-/";
-    const list = document.getElementById('list');
-    const countEl = document.getElementById('count');
-    const data = Junkai.readCity(CITY);
-    if(!data.length){ list.innerHTML='<p class="empty">まだ同期されていません（インデックスの同期を押してください）</p>'; return; }
-    countEl.textContent = data.length;
-
-    const map = Junkai.computeIndexMap(CITY, data);
-
-    for(const rec of data){
-      const row=document.createElement('div');
-      row.className='row '+Junkai.rowClass(rec);
-
-      const idx=document.createElement('div');
-      idx.className='idx';
-      idx.textContent = map[rec.number] || '?';
-      row.appendChild(idx);
-
-      const chk=document.createElement('input');
-      chk.type='checkbox'; chk.className='chk'; chk.checked=!!rec.checked;
-      chk.addEventListener('change', ()=>{
-        if(!confirm(chk.checked?'チェックを付けます。よろしいですか？':'チェックを外します。よろしいですか？')){ chk.checked=!chk.checked; return; }
-        rec.checked = chk.checked;
-        Junkai.updateRecord(CITY, rec);
-        row.className='row '+Junkai.rowClass(rec);
-      });
-      row.appendChild(chk);
-
-      const fields=document.createElement('div'); fields.className='fields';
-      const t1=document.createElement('div'); t1.className='title1'; t1.textContent = rec.station||'(無名)';
-      const t2=document.createElement('div'); t2.className='title2'; t2.textContent = (rec.model||'') + (rec.number?'　'+rec.number:'');
-      fields.appendChild(t1); fields.appendChild(t2);
-      row.appendChild(fields);
-
-      const r=document.createElement('div'); r.className='rcol';
-
-      const sel=document.createElement('select'); sel.className='state-select';
-      const opts=[['normal','通常'],['stop','停止'],['skip','不要']];
-      for(const [v,l] of opts){ const o=document.createElement('option'); o.value=v; o.textContent=l; if(rec.status===v) o.selected=true; sel.appendChild(o);}
-      sel.addEventListener('change',()=>{ rec.status=sel.value; Junkai.updateRecord(CITY, rec); row.className='row '+Junkai.rowClass(rec); });
-      r.appendChild(sel);
-
-      const btn=document.createElement('button'); btn.className='btn-mini'; btn.textContent='点検';
-      btn.addEventListener('click',()=>{
-        const u = new URL(TIRE_URL);
-        u.searchParams.set('station', rec.station||'');
-        u.searchParams.set('model', rec.model||'');
-        u.searchParams.set('number', rec.number||'');
-        location.href = u.toString();
-      });
-      r.appendChild(btn);
-
-      row.appendChild(r);
-      list.appendChild(row);
-    }
-  })();
-  </script>
+  <script src="app.js?v=v5k"></script>
+  <script>window.addEventListener('DOMContentLoaded',()=>window.renderArea&&window.renderArea('大和市'));</script>
+  <div class="ver">v5k</div>
 </body>
 </html>
