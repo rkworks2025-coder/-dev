@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>海老名市 巡回</title>
+
+<style>
+  :root{ --bg:#f6f7fb; --surface:#fff; --border:#e6e8ee; --text:#111; --muted:#6b7280; --accent:#111; --checked:#ffe8ef; }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{position:sticky;top:0;background:var(--surface);padding:12px 16px;border-bottom:1px solid var(--border);z-index:10;display:flex;gap:8px;align-items:center}
+  header .back{text-decoration:none;border:1px solid var(--border);padding:8px 12px;border-radius:12px;color:var(--text)}
+  header h1{margin:0;font-size:18px;flex:1;text-align:center}
+  header .count{font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+  main{padding:12px 12px 24px;max-width:820px;margin:0 auto}
+  .toolbar{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;justify-content:center}
+  .pill{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:var(--surface);text-decoration:none;color:var(--text);cursor:pointer}
+  .danger{color:#b42318;border-color:#f2c6c4;background:#fff5f4}
+  .card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:background .15s,border-color .15s}
+  .card.checked{background:var(--checked);border-color:#f8c9d7}
+  .chk-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex:none}
+  .chk{appearance:none;width:0;height:0;position:absolute;opacity:0}
+  .fake{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-radius:6px;background:#fff}
+  .chk:checked + .fake{border-color:var(--accent);background:var(--accent);
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path fill="white" d="M6.6 11.6L3.5 8.5l1.1-1.1 2 2 4-4 1.1 1.1z"/></svg>');
+    background-repeat:no-repeat;background-position:center}
+  .body{flex:1;min-width:0}
+  .title{font-weight:700;white-space:normal;word-break:break-word;line-height:1.35;margin-bottom:2px}
+  .meta{margin-top:4px;color:var(--muted);font-size:14px;line-height:1.5}
+  .meta .line{white-space:normal;word-break:break-word}
+  .meta .line.small{font-size:12px}
+  .date-badge{min-width:54px;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700}
+</style>
+
+<header>
+  <a class="back" href="index.html" onclick="return goBack(event)">戻る</a>
+  <h1 style="writing-mode:horizontal-tb; text-orientation:mixed; white-space:nowrap;">海老名市 巡回</h1>
+  <span class="count" id="count">0/87>
+<div style="text-align:center;font-size:12px;color:#6b7280;margin-top:-6px;margin-bottom:6px;">日付を編集→ 各行の日付ラベルをタップ</div></header>
+<main>
+  <div class="toolbar">
+    <span class="pill" onclick="checkAll()">全てチェック</span>
+    <span class="pill" onclick="uncheckAll()">全て外す</span>
+    <span class="pill danger" onclick="clearAll()">リセット</span>
+  </div>
+        <div class="card" data-key="海老名市:0">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅前第２</div>
+            <div class="meta"><div class='line'>CX-30</div><div class='line'>相模300ワ5668</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E5%89%8D%E7%AC%AC%EF%BC%92&model=CX-30&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5668" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:1">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅前第２</div>
+            <div class="meta"><div class='line'>ソリオ</div><div class='line'>相模501ワ6814</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E5%89%8D%E7%AC%AC%EF%BC%92&model=%E3%82%BD%E3%83%AA%E3%82%AA&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF6814" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:2">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅前第２</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ8127</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E5%89%8D%E7%AC%AC%EF%BC%92&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8127" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:3">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅前第２</div>
+            <div class="meta"><div class='line'>フリード</div><div class='line'>相模501ワ8181</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E5%89%8D%E7%AC%AC%EF%BC%92&model=%E3%83%95%E3%83%AA%E3%83%BC%E3%83%89&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8181" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:4">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">小田急厚木第１駐車場（小田急）</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ7277</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E5%B0%8F%E7%94%B0%E6%80%A5%E5%8E%9A%E6%9C%A8%E7%AC%AC%EF%BC%91%E9%A7%90%E8%BB%8A%E5%A0%B4%EF%BC%88%E5%B0%8F%E7%94%B0%E6%80%A5%EF%BC%89&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7277" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:5">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">小田急厚木第１駐車場（小田急）</div>
+            <div class="meta"><div class='line'>ソリオ</div><div class='line'>相模501ワ7594</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E5%B0%8F%E7%94%B0%E6%80%A5%E5%8E%9A%E6%9C%A8%E7%AC%AC%EF%BC%91%E9%A7%90%E8%BB%8A%E5%A0%B4%EF%BC%88%E5%B0%8F%E7%94%B0%E6%80%A5%EF%BC%89&model=%E3%82%BD%E3%83%AA%E3%82%AA&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7594" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:6">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名河原口</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ8033</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E6%B2%B3%E5%8E%9F%E5%8F%A3&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8033" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:7">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ロイヤルプラザ海老名駐車場</div>
+            <div class="meta"><div class='line'>ノア</div><div class='line'>相模300ワ5603</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%83%AD%E3%82%A4%E3%83%A4%E3%83%AB%E3%83%97%E3%83%A9%E3%82%B6%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%90%E8%BB%8A%E5%A0%B4&model=%E3%83%8E%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5603" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:8">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ロイヤルプラザ海老名駐車場</div>
+            <div class="meta"><div class='line'>オーラ</div><div class='line'>相模300ワ5604</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%83%AD%E3%82%A4%E3%83%A4%E3%83%AB%E3%83%97%E3%83%A9%E3%82%B6%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%90%E8%BB%8A%E5%A0%B4&model=%E3%82%AA%E3%83%BC%E3%83%A9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5604" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:9">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ロイヤルプラザ海老名駐車場</div>
+            <div class="meta"><div class='line'>プリウス</div><div class='line'>相模300ワ5827</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%83%AD%E3%82%A4%E3%83%A4%E3%83%AB%E3%83%97%E3%83%A9%E3%82%B6%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%90%E8%BB%8A%E5%A0%B4&model=%E3%83%97%E3%83%AA%E3%82%A6%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5827" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:10">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ロイヤルプラザ海老名駐車場</div>
+            <div class="meta"><div class='line'>ヤリスクロス</div><div class='line'>相模300ワ6044</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%83%AD%E3%82%A4%E3%83%A4%E3%83%AB%E3%83%97%E3%83%A9%E3%82%B6%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%90%E8%BB%8A%E5%A0%B4&model=%E3%83%A4%E3%83%AA%E3%82%B9%E3%82%AF%E3%83%AD%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF6044" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:11">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ロイヤルプラザ海老名駐車場</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ6239</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%83%AD%E3%82%A4%E3%83%A4%E3%83%AB%E3%83%97%E3%83%A9%E3%82%B6%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%90%E8%BB%8A%E5%A0%B4&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF6239" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:12">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ロイヤルプラザ海老名駐車場</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ7298</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%83%AD%E3%82%A4%E3%83%A4%E3%83%AB%E3%83%97%E3%83%A9%E3%82%B6%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%90%E8%BB%8A%E5%A0%B4&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7298" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:13">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">海老名国分北２丁目</div>
+            <div class="meta"><div class='line'>ハスラー</div><div class='line'>相模580ワ4011</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E6%B5%B7%E8%80%81%E5%90%8D%E5%9B%BD%E5%88%86%E5%8C%97%EF%BC%92%E4%B8%81%E7%9B%AE&model=%E3%83%8F%E3%82%B9%E3%83%A9%E3%83%BC&plate_full=%E7%9B%B8%E6%A8%A1580%E3%83%AF4011" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:14">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">マハロ壱番館</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ8910</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%83%9E%E3%83%8F%E3%83%AD%E5%A3%B1%E7%95%AA%E9%A4%A8&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8910" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:15">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅西口第３</div>
+            <div class="meta"><div class='line'>CX-30</div><div class='line'>相模300ワ4508</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%E7%AC%AC%EF%BC%93&model=CX-30&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF4508" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:16">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅西口第３</div>
+            <div class="meta"><div class='line'>CX-5</div><div class='line'>相模300ワ4907</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%E7%AC%AC%EF%BC%93&model=CX-5&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF4907" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:17">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅西口第３</div>
+            <div class="meta"><div class='line'>ノア</div><div class='line'>相模300ワ4926</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%E7%AC%AC%EF%BC%93&model=%E3%83%8E%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF4926" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:18">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅西口第３</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ7816</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%E7%AC%AC%EF%BC%93&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7816" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:19">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅西口第３</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ8184</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%E7%AC%AC%EF%BC%93&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8184" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:20">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅西口第３</div>
+            <div class="meta"><div class='line'>ハスラー</div><div class='line'>相模580ワ3114</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%E7%AC%AC%EF%BC%93&model=%E3%83%8F%E3%82%B9%E3%83%A9%E3%83%BC&plate_full=%E7%9B%B8%E6%A8%A1580%E3%83%AF3114" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:21">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅西口第３</div>
+            <div class="meta"><div class='line'>ハスラー</div><div class='line'>相模580ワ3376</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%E7%AC%AC%EF%BC%93&model=%E3%83%8F%E3%82%B9%E3%83%A9%E3%83%BC&plate_full=%E7%9B%B8%E6%A8%A1580%E3%83%AF3376" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:22">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅西口第２</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ7095</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%E7%AC%AC%EF%BC%92&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7095" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:23">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">扇町見世ビル</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ9444</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E6%89%87%E7%94%BA%E8%A6%8B%E4%B8%96%E3%83%93%E3%83%AB&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9444" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:24">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名駅西口第４</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ7864</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%E7%AC%AC%EF%BC%94&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7864" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:25">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">海老名駅西口（ＥＶ）</div>
+            <div class="meta"><div class='line'>リーフ</div><div class='line'>相模300ワ5328</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E8%A5%BF%E5%8F%A3%EF%BC%88%EF%BC%A5%EF%BC%B6%EF%BC%89&model=%E3%83%AA%E3%83%BC%E3%83%95&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5328" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:26">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名泉</div>
+            <div class="meta"><div class='line'>ヤリスクロス</div><div class='line'>相模300ワ4912</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E6%B3%89&model=%E3%83%A4%E3%83%AA%E3%82%B9%E3%82%AF%E3%83%AD%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF4912" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:27">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名泉</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ7611</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E6%B3%89&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7611" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:28">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">セントガーデン海老名＿限定</div>
+            <div class="meta"><div class='line'>シエンタ</div><div class='line'>相模501ワ9383</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BB%E3%83%B3%E3%83%88%E3%82%AC%E3%83%BC%E3%83%87%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%EF%BC%BF%E9%99%90%E5%AE%9A&model=%E3%82%B7%E3%82%A8%E3%83%B3%E3%82%BF&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9383" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:29">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">セントガーデン海老名＿限定</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ9403</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BB%E3%83%B3%E3%83%88%E3%82%AC%E3%83%BC%E3%83%87%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%EF%BC%BF%E9%99%90%E5%AE%9A&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9403" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:30">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズビナフロント</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ5975</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%83%93%E3%83%8A%E3%83%95%E3%83%AD%E3%83%B3%E3%83%88&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF5975" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:31">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズビナフロント</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ7911</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%83%93%E3%83%8A%E3%83%95%E3%83%AD%E3%83%B3%E3%83%88&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7911" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:32">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズビナフロント</div>
+            <div class="meta"><div class='line'>ソリオ</div><div class='line'>相模501ワ7924</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%83%93%E3%83%8A%E3%83%95%E3%83%AD%E3%83%B3%E3%83%88&model=%E3%82%BD%E3%83%AA%E3%82%AA&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7924" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:33">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名中央公園地下</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ6811</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E5%85%AC%E5%9C%92%E5%9C%B0%E4%B8%8B&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF6811" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:34">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名中央公園地下</div>
+            <div class="meta"><div class='line'>MAZDA2</div><div class='line'>相模501ワ7040</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E5%85%AC%E5%9C%92%E5%9C%B0%E4%B8%8B&model=MAZDA2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7040" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:35">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名中央公園地下</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ7065</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E5%85%AC%E5%9C%92%E5%9C%B0%E4%B8%8B&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7065" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:36">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名中央公園地下</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ8985</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E5%85%AC%E5%9C%92%E5%9C%B0%E4%B8%8B&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8985" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:37">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名中央公園地下（ＥＶ）</div>
+            <div class="meta"><div class='line'>リーフ</div><div class='line'>相模300ワ5669</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E5%85%AC%E5%9C%92%E5%9C%B0%E4%B8%8B%EF%BC%88%EF%BC%A5%EF%BC%B6%EF%BC%89&model=%E3%83%AA%E3%83%BC%E3%83%95&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5669" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:38">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">クラウンハイツ海老名</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ7250</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%AF%E3%83%A9%E3%82%A6%E3%83%B3%E3%83%8F%E3%82%A4%E3%83%84%E6%B5%B7%E8%80%81%E5%90%8D&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7250" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:39">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">クラウンハイツ海老名</div>
+            <div class="meta"><div class='line'>スイフト</div><div class='line'>相模501ワ8018</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%AF%E3%83%A9%E3%82%A6%E3%83%B3%E3%83%8F%E3%82%A4%E3%83%84%E6%B5%B7%E8%80%81%E5%90%8D&model=%E3%82%B9%E3%82%A4%E3%83%95%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8018" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:40">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">クラウンハイツ海老名</div>
+            <div class="meta"><div class='line'>MAZDA2</div><div class='line'>相模501ワ8977</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%AF%E3%83%A9%E3%82%A6%E3%83%B3%E3%83%8F%E3%82%A4%E3%83%84%E6%B5%B7%E8%80%81%E5%90%8D&model=MAZDA2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8977" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:41">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">スターバックスコーヒー海老名中央店</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ6185</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%90%E3%83%83%E3%82%AF%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%92%E3%83%BC%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E5%BA%97&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF6185" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:42">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">スターバックスコーヒー海老名中央店</div>
+            <div class="meta"><div class='line'>スイフト</div><div class='line'>相模501ワ7312</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%90%E3%83%83%E3%82%AF%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%92%E3%83%BC%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E5%BA%97&model=%E3%82%B9%E3%82%A4%E3%83%95%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7312" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:43">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">イオン海老名ショッピングセンターＧ</div>
+            <div class="meta"><div class='line'>フリード</div><div class='line'>相模501ワ5990</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%A4%E3%82%AA%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%E3%82%B7%E3%83%A7%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%EF%BC%A7&model=%E3%83%95%E3%83%AA%E3%83%BC%E3%83%89&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF5990" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:44">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">イオン海老名ショッピングセンターＧ</div>
+            <div class="meta"><div class='line'>フィット</div><div class='line'>相模501ワ6041</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%A4%E3%82%AA%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%E3%82%B7%E3%83%A7%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%EF%BC%A7&model=%E3%83%95%E3%82%A3%E3%83%83%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF6041" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:45">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">イオン海老名ショッピングセンターＧ</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ6369</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%A4%E3%82%AA%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%E3%82%B7%E3%83%A7%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%EF%BC%A7&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF6369" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:46">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">イオン海老名ショッピングセンターＧ</div>
+            <div class="meta"><div class='line'>フィット</div><div class='line'>相模501ワ6815</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%A4%E3%82%AA%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%E3%82%B7%E3%83%A7%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%EF%BC%A7&model=%E3%83%95%E3%82%A3%E3%83%83%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF6815" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:47">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">イオン海老名ショッピングセンターＧ</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ7819</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%A4%E3%82%AA%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%E3%82%B7%E3%83%A7%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%EF%BC%A7&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7819" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:48">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">イオン海老名ショッピングセンターＧ</div>
+            <div class="meta"><div class='line'>フリード</div><div class='line'>相模501ワ8028</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%A4%E3%82%AA%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%E3%82%B7%E3%83%A7%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%EF%BC%A7&model=%E3%83%95%E3%83%AA%E3%83%BC%E3%83%89&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8028" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:49">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">イオン海老名ショッピングセンターＧ</div>
+            <div class="meta"><div class='line'>MAZDA2</div><div class='line'>相模501ワ8851</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%A4%E3%82%AA%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%E3%82%B7%E3%83%A7%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%EF%BC%A7&model=MAZDA2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8851" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:50">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">イオン海老名ショッピングセンターＧ</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ8863</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%A4%E3%82%AA%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%E3%82%B7%E3%83%A7%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%EF%BC%A7&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8863" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:51">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">イオン海老名ショッピングセンターＧ</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ9089</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%A4%E3%82%AA%E3%83%B3%E6%B5%B7%E8%80%81%E5%90%8D%E3%82%B7%E3%83%A7%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%B3%E3%82%BF%E3%83%BC%EF%BC%A7&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9089" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:52">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名中央第６</div>
+            <div class="meta"><div class='line'>N BOX</div><div class='line'>相模580ワ2448</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E7%AC%AC%EF%BC%96&model=N+BOX&plate_full=%E7%9B%B8%E6%A8%A1580%E3%83%AF2448" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:53">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">海老名駅前第３</div>
+            <div class="meta"><div class='line'>フリード</div><div class='line'>相模501ワ8185</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E5%89%8D%E7%AC%AC%EF%BC%93&model=%E3%83%95%E3%83%AA%E3%83%BC%E3%83%89&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8185" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:54">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">海老名駅前第３</div>
+            <div class="meta"><div class='line'>ソリオ</div><div class='line'>相模501ワ8250</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E6%B5%B7%E8%80%81%E5%90%8D%E9%A7%85%E5%89%8D%E7%AC%AC%EF%BC%93&model=%E3%82%BD%E3%83%AA%E3%82%AA&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8250" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:55">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">海老名市中央３丁目</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ7308</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E6%B5%B7%E8%80%81%E5%90%8D%E5%B8%82%E4%B8%AD%E5%A4%AE%EF%BC%93%E4%B8%81%E7%9B%AE&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7308" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:56">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">海老名市中央３丁目</div>
+            <div class="meta"><div class='line'>フィット</div><div class='line'>相模501ワ9122</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E6%B5%B7%E8%80%81%E5%90%8D%E5%B8%82%E4%B8%AD%E5%A4%AE%EF%BC%93%E4%B8%81%E7%9B%AE&model=%E3%83%95%E3%82%A3%E3%83%83%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9122" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:57">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">海老名市中央３丁目</div>
+            <div class="meta"><div class='line'>ハスラー</div><div class='line'>相模580ワ3039</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E6%B5%B7%E8%80%81%E5%90%8D%E5%B8%82%E4%B8%AD%E5%A4%AE%EF%BC%93%E4%B8%81%E7%9B%AE&model=%E3%83%8F%E3%82%B9%E3%83%A9%E3%83%BC&plate_full=%E7%9B%B8%E6%A8%A1580%E3%83%AF3039" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:58">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名中央第４</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ8357</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E7%AC%AC%EF%BC%94&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8357" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:59">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ海老名中央第４</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ8370</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%B5%B7%E8%80%81%E5%90%8D%E4%B8%AD%E5%A4%AE%E7%AC%AC%EF%BC%94&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8370" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:60">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ＵＲえびな団地</div>
+            <div class="meta"><div class='line'>ヤリスクロス</div><div class='line'>相模300ワ5939</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%EF%BC%B5%EF%BC%B2%E3%81%88%E3%81%B3%E3%81%AA%E5%9B%A3%E5%9C%B0&model=%E3%83%A4%E3%83%AA%E3%82%B9%E3%82%AF%E3%83%AD%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5939" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:61">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">厚木第２駐車場（小田急）</div>
+            <div class="meta"><div class='line'>ソリオ</div><div class='line'>相模501ワ5731</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E5%8E%9A%E6%9C%A8%E7%AC%AC%EF%BC%92%E9%A7%90%E8%BB%8A%E5%A0%B4%EF%BC%88%E5%B0%8F%E7%94%B0%E6%80%A5%EF%BC%89&model=%E3%82%BD%E3%83%AA%E3%82%AA&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF5731" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:62">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">厚木第２駐車場（小田急）</div>
+            <div class="meta"><div class='line'>スイフト</div><div class='line'>相模501ワ8186</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E5%8E%9A%E6%9C%A8%E7%AC%AC%EF%BC%92%E9%A7%90%E8%BB%8A%E5%A0%B4%EF%BC%88%E5%B0%8F%E7%94%B0%E6%80%A5%EF%BC%89&model=%E3%82%B9%E3%82%A4%E3%83%95%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8186" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:63">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">厚木第２駐車場（小田急）</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ9095</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E5%8E%9A%E6%9C%A8%E7%AC%AC%EF%BC%92%E9%A7%90%E8%BB%8A%E5%A0%B4%EF%BC%88%E5%B0%8F%E7%94%B0%E6%80%A5%EF%BC%89&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9095" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:64">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ東柏ケ谷</div>
+            <div class="meta"><div class='line'>ヤリスクロス</div><div class='line'>相模300ワ5908</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%9D%B1%E6%9F%8F%E3%82%B1%E8%B0%B7&model=%E3%83%A4%E3%83%AA%E3%82%B9%E3%82%AF%E3%83%AD%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5908" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:65">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ東柏ケ谷</div>
+            <div class="meta"><div class='line'>ヤリスクロス</div><div class='line'>相模300ワ6071</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%9D%B1%E6%9F%8F%E3%82%B1%E8%B0%B7&model=%E3%83%A4%E3%83%AA%E3%82%B9%E3%82%AF%E3%83%AD%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF6071" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:66">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズ東柏ケ谷</div>
+            <div class="meta"><div class='line'>フィット</div><div class='line'>相模501ワ8015</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E6%9D%B1%E6%9F%8F%E3%82%B1%E8%B0%B7&model=%E3%83%95%E3%82%A3%E3%83%83%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8015" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:67">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ＰーＲＥＸさがみ野駐車場</div>
+            <div class="meta"><div class='line'>MAZDA3</div><div class='line'>相模300ワ5854</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%EF%BC%B0%E3%83%BC%EF%BC%B2%EF%BC%A5%EF%BC%B8%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E9%A7%90%E8%BB%8A%E5%A0%B4&model=MAZDA3&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5854" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:68">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ＰーＲＥＸさがみ野駐車場</div>
+            <div class="meta"><div class='line'>ヤリスクロス</div><div class='line'>相模300ワ6041</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%EF%BC%B0%E3%83%BC%EF%BC%B2%EF%BC%A5%EF%BC%B8%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E9%A7%90%E8%BB%8A%E5%A0%B4&model=%E3%83%A4%E3%83%AA%E3%82%B9%E3%82%AF%E3%83%AD%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF6041" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:69">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">ＰーＲＥＸさがみ野駐車場</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ8520</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%EF%BC%B0%E3%83%BC%EF%BC%B2%EF%BC%A5%EF%BC%B8%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E9%A7%90%E8%BB%8A%E5%A0%B4&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8520" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:70">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">さがみ野駅南口（屋上）</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ7147</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E9%A7%85%E5%8D%97%E5%8F%A3%EF%BC%88%E5%B1%8B%E4%B8%8A%EF%BC%89&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF7147" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:71">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">さがみ野駅南口（屋上）</div>
+            <div class="meta"><div class='line'>スイフト</div><div class='line'>相模501ワ8152</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E9%A7%85%E5%8D%97%E5%8F%A3%EF%BC%88%E5%B1%8B%E4%B8%8A%EF%BC%89&model=%E3%82%B9%E3%82%A4%E3%83%95%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8152" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:72">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">さがみ野駅南口（屋上）</div>
+            <div class="meta"><div class='line'>ソリオ</div><div class='line'>相模501ワ8198</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E9%A7%85%E5%8D%97%E5%8F%A3%EF%BC%88%E5%B1%8B%E4%B8%8A%EF%BC%89&model=%E3%82%BD%E3%83%AA%E3%82%AA&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8198" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:73">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">さがみ野駅南口（屋上）</div>
+            <div class="meta"><div class='line'>ノート</div><div class='line'>相模501ワ8626</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E9%A7%85%E5%8D%97%E5%8F%A3%EF%BC%88%E5%B1%8B%E4%B8%8A%EF%BC%89&model=%E3%83%8E%E3%83%BC%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8626" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:74">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">さがみ野駅南口（屋上）</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ9335</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E9%A7%85%E5%8D%97%E5%8F%A3%EF%BC%88%E5%B1%8B%E4%B8%8A%EF%BC%89&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9335" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:75">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズさがみ野相鉄ライフ第２</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ5976</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E7%9B%B8%E9%89%84%E3%83%A9%E3%82%A4%E3%83%95%E7%AC%AC%EF%BC%92&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF5976" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:76">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズさがみ野相鉄ライフ第２</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ9283</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E7%9B%B8%E9%89%84%E3%83%A9%E3%82%A4%E3%83%95%E7%AC%AC%EF%BC%92&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9283" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:77">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズさがみ野相鉄ライフ第２</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ9288</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%81%95%E3%81%8C%E3%81%BF%E9%87%8E%E7%9B%B8%E9%89%84%E3%83%A9%E3%82%A4%E3%83%95%E7%AC%AC%EF%BC%92&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9288" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:78">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">Ｎ－ｓｔａｇｅかしわ台</div>
+            <div class="meta"><div class='line'>C-HR</div><div class='line'>相模300ワ5174</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%EF%BC%AE%EF%BC%8D%EF%BD%93%EF%BD%94%EF%BD%81%EF%BD%87%EF%BD%85%E3%81%8B%E3%81%97%E3%82%8F%E5%8F%B0&model=C-HR&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5174" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:79">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズかしわ台第３</div>
+            <div class="meta"><div class='line'>ヤリスクロス</div><div class='line'>相模300ワ4680</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%81%8B%E3%81%97%E3%82%8F%E5%8F%B0%E7%AC%AC%EF%BC%93&model=%E3%83%A4%E3%83%AA%E3%82%B9%E3%82%AF%E3%83%AD%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF4680" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:80">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズかしわ台第３</div>
+            <div class="meta"><div class='line'>ヤリスクロス</div><div class='line'>相模300ワ4782</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%81%8B%E3%81%97%E3%82%8F%E5%8F%B0%E7%AC%AC%EF%BC%93&model=%E3%83%A4%E3%83%AA%E3%82%B9%E3%82%AF%E3%83%AD%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF4782" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:81">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズかしわ台第３</div>
+            <div class="meta"><div class='line'>ヤリス</div><div class='line'>相模501ワ5721</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%81%8B%E3%81%97%E3%82%8F%E5%8F%B0%E7%AC%AC%EF%BC%93&model=%E3%83%A4%E3%83%AA%E3%82%B9&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF5721" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:82">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">タイムズかしわ台第３</div>
+            <div class="meta"><div class='line'>ライズ</div><div class='line'>相模501ワ5783</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%BA%E3%81%8B%E3%81%97%E3%82%8F%E5%8F%B0%E7%AC%AC%EF%BC%93&model=%E3%83%A9%E3%82%A4%E3%82%BA&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF5783" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:83">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">かしわ台駅前</div>
+            <div class="meta"><div class='line'>オーラ</div><div class='line'>相模300ワ5332</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%81%8B%E3%81%97%E3%82%8F%E5%8F%B0%E9%A7%85%E5%89%8D&model=%E3%82%AA%E3%83%BC%E3%83%A9&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF5332" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:84">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">かしわ台駅前</div>
+            <div class="meta"><div class='line'>スイフト</div><div class='line'>相模501ワ8150</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E3%81%8B%E3%81%97%E3%82%8F%E5%8F%B0%E9%A7%85%E5%89%8D&model=%E3%82%B9%E3%82%A4%E3%83%95%E3%83%88&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF8150" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:85">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">相鉄柏ケ谷月極パーキング</div>
+            <div class="meta"><div class='line'>MAZDA3</div><div class='line'>相模300ワ6019</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E7%9B%B8%E9%89%84%E6%9F%8F%E3%82%B1%E8%B0%B7%E6%9C%88%E6%A5%B5%E3%83%91%E3%83%BC%E3%82%AD%E3%83%B3%E3%82%B0&model=MAZDA3&plate_full=%E7%9B%B8%E6%A8%A1300%E3%83%AF6019" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+        <div class="card" data-key="海老名市:86">
+          <label class="chk-wrap">
+            <input type="checkbox" class="chk">
+            <span class="fake"></span>
+          </label>
+          <div class="body">
+            <div class="title">見上駐車場</div>
+            <div class="meta"><div class='line'>アクア</div><div class='line'>相模501ワ9310</div></div>
+            <div class="actions"><a href="https://rkworks2025-coder.github.io/r.k.w-/?station=%E8%A6%8B%E4%B8%8A%E9%A7%90%E8%BB%8A%E5%A0%B4&model=%E3%82%A2%E3%82%AF%E3%82%A2&plate_full=%E7%9B%B8%E6%A8%A1501%E3%83%AF9310" target="_blank" class="inspect-link">点検</a></div>
+          </div>
+          <div class="date-badge"></div>
+        </div>
+        
+</main>
+
+<script>
+function goBack(e){ e.preventDefault(); location.href="index.html"; return false; }
+function mmdd(){
+  const d=new Date(); const m=('0'+(d.getMonth()+1)).slice(-2); const day=('0'+d.getDate()).slice(-2); return m+'-'+day;
+}
+function key(city, idx){ return 'chk:'+city+':'+idx; }
+function loadCardState(city, idx){
+  try{ return JSON.parse(localStorage.getItem(key(city, idx))) || null; }catch(e){ return null; }
+}
+function saveCardState(city, idx, checked){
+  const v = checked ? {checked:true, date:mmdd()} : {checked:false, date:''};
+  localStorage.setItem(key(city, idx), JSON.stringify(v));
+}
+function applyToCard(card, state){
+  const cb = card.querySelector('.chk');
+  const dateEl = card.querySelector('.date-badge');
+  if(state && state.checked){
+    cb.checked = true;
+    card.classList.add('checked');
+    dateEl.textContent = state.date || mmdd();
+  }else{
+    cb.checked = false;
+    card.classList.remove('checked');
+    dateEl.textContent = '';
+  }
+}
+function confirmToggle(){ return confirm('よろしいですか？'); }
+function updateCount(city){
+  const cards = Array.from(document.querySelectorAll('.card'));
+  const total = cards.length;
+  const done = cards.filter(c=>c.classList.contains('checked')).length;
+  document.getElementById('count').textContent = done + "/" + total;
+}
+function attachHandlers(city){
+  document.querySelectorAll('.card').forEach((card,idx)=>{
+    // 初期状態反映
+    const st = loadCardState(city, idx);
+    applyToCard(card, st);
+
+    // 変更イベント
+    const cb = card.querySelector('.chk');
+    cb.addEventListener('change', e=>{
+      if(!confirmToggle()){ e.target.checked = !e.target.checked; return; }
+      const checked = e.target.checked;
+      saveCardState(city, idx, checked);
+      applyToCard(card, loadCardState(city, idx));
+      updateCount(city);
+    });
+  });
+  updateCount(city);
+  // Toolbar actions
+  const cards = Array.from(document.querySelectorAll('.card'));
+  window.checkAll = ()=>{
+    if(!confirmToggle()) return;
+    cards.forEach((card,idx)=>{ saveCardState(city, idx, true); applyToCard(card, loadCardState(city, idx)); });
+    updateCount(city);
+  };
+  window.uncheckAll = ()=>{
+    if(!confirmToggle()) return;
+    cards.forEach((card,idx)=>{ saveCardState(city, idx, false); applyToCard(card, loadCardState(city, idx)); });
+    updateCount(city);
+  };
+  window.clearAll = ()=>{
+    if(!confirmToggle()) return;
+    cards.forEach((card,idx)=>{ localStorage.removeItem(key(city, idx)); applyToCard(card, null); });
+    updateCount(city);
+  };
+}
+</script>
+
+<script>document.addEventListener('DOMContentLoaded', ()=> attachHandlers('海老名市'));</script>
+</html>
