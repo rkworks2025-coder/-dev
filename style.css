@@ -1,44 +1,90 @@
-:root{--accent:#2b6bf6; --fg:#0e1a2b; --muted:#64748b; --chip:#eff4ff;
-  --green:#e8f7ec; --pink:#ffeaf1; --gray:#e5e7eb; --gray-strong:#c7cbd3; --yellow:#fff9db; --blue:#e8f2ff;}
+
+:root{
+  --accent:#2b6bf6; --fg:#0e1a2b; --muted:#64748b; --chip:#eff4ff;
+  --green:#e8f7ec; --pink:#ffeaf1; --gray:#e2e5ea; --gray-deep:#c8cdd6;
+  --yellow:#fff9db; --blue:#e8f2ff;
+}
 *{box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;margin:0;background:#f6f7fb;color:var(--fg)}
-.appbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #e6e8ef}
-.title{font-size:20px;font-weight:800;letter-spacing:.04em}
-.btns{display:flex;gap:10px}
-.btn{appearance:none;border:1px solid #d7dbe7;padding:8px 14px;border-radius:12px;background:#fff;font-weight:700;font-size:14px;cursor:pointer}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f6f7fb;color:var(--fg)}
+
+.appbar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e6e8ef}
+.appbar .inner{max-width:920px;margin:0 auto;display:grid;grid-template-columns:72px 1fr 72px;align-items:center;padding:14px 12px}
+.appbar .title{text-align:center;font-weight:800;font-size:20px;letter-spacing:.03em}
+.appbar .left,.appbar .right{display:flex;align-items:center;gap:8px}
+.appbar a.btn, .btn{appearance:none;border:1px solid #d7dbe7;padding:8px 14px;border-radius:12px;background:#fff;font-weight:700;font-size:14px;text-decoration:none;color:inherit}
 .btn-primary{background:var(--chip);border-color:#c9d6ff;color:#1e40af}
-.wrap{max-width:860px;margin:18px auto;padding:0 14px 60px}
+
+.wrap{max-width:920px;margin:16px auto;padding:0 12px 60px}
 .hint{margin:6px 2px 14px;color:var(--muted);font-size:13px}
 .cards{display:grid;grid-template-columns:1fr;gap:14px}
-.card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #e6e8ef;border-radius:16px;padding:18px 16px;box-shadow:0 1px 0 rgba(8,15,35,.03)}
-.card:hover{background:#fafcff}
-.card h2{margin:0 0 8px 0;font-size:18px;letter-spacing:.03em}
+.card-link{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #e6e8ef;border-radius:16px;padding:18px 16px;box-shadow:0 1px 0 rgba(8,15,35,.03)}
 .meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f2f5fb;border:1px solid #e6e8ef}
-.muted{color:var(--muted)}
-.empty{margin:28px 2px 0 2px;color:var(--muted);font-size:14px}
-.ver{position:fixed;right:8px;bottom:6px;font-size:10px;color:#94a3b8;opacity:.7;pointer-events:none;z-index:9}
-.modal{position:fixed;inset:0;background:rgba(8,15,35,.5);display:none;align-items:center;justify-content:center;z-index:50}
+
+/* progress modal */
+.modal{position:fixed;inset:0;background:rgba(8,15,35,.5);display:none;align-items:center;justify-content:center;z-index:100}
 .modal.show{display:flex}
 .dialog{width:min(520px,90vw);background:#111827;color:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .dialog h3{margin:0 0 8px 0;font-size:18px}
 .barwrap{height:8px;background:#1f2937;border-radius:999px;overflow:hidden;margin-top:12px}
 .bar{height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#a78bfa,#34d399)}
-.row{display:grid;grid-template-columns:40px 1fr 120px 82px;align-items:center;gap:10px;border:1px solid #e6e8ef;background:#fff;border-radius:12px;padding:10px}
-.row + .row{margin-top:10px}
-.idx{width:36px;text-align:right;font-weight:700;color:#334155}
-.fields{display:flex;flex-direction:column}
-.line1{font-weight:700}
-.line2{font-size:12px;color:#475569}
-.rightcol{display:flex;flex-direction:column;gap:8px;align-items:stretch;justify-content:center}
-.when{margin-left:8px;display:flex;flex-direction:column;line-height:1.0}
-.when .md{font-size:12px;color:#0f172a}
-.when .hm{font-size:11px;color:#64748b;margin-top:2px}
-.state-select{padding:6px 8px;border:1px solid #d7dbe7;border-radius:10px;background:#fff}
-.btn-mini{padding:6px 10px;border:1px solid #d7dbe7;border-radius:10px;background:#fff;font-weight:700;font-size:12px;cursor:pointer}
+
+.empty{margin:28px 2px 0 2px;color:var(--muted);font-size:14px}
+.ver{position:fixed;right:8px;bottom:6px;font-size:10px;color:#94a3b8;opacity:.7;pointer-events:none;z-index:9}
+
+/* ---- City page list ---- */
+.list{display:flex;flex-direction:column;gap:12px}
+.vehicle-card{
+  border:1px solid #e6e8ef;background:#fff;border-radius:16px;padding:10px 12px;
+}
+.vehicle-card .grid{
+  display:grid;
+  grid-template-columns:56px minmax(0,1fr) auto; /* left index / content / controls */
+  align-items:center;
+  gap:8px 10px;
+}
+.idx{
+  width:56px;
+  text-align:left;
+  font-weight:800;
+  color:#0f172a;
+}
+.content{min-width:0}
+.title-line{
+  font-weight:800;
+  font-size:18px;
+  line-height:1.15;
+  white-space:nowrap;          /* keep title on one line */
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.meta-line{
+  margin-top:4px;
+  color:#475569;
+  font-size:13px;
+  display:flex;
+  gap:12px;
+  white-space:nowrap;          /* <<< prevent awkward wrapping for model/number */
+  word-break:keep-all;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ctrls{
+  display:flex;flex-direction:column;gap:10px;align-items:flex-end;
+}
+.state-select{
+  padding:6px 10px;border:1px solid #d7dbe7;border-radius:10px;background:#fff;font-weight:600;font-size:13px;min-width:90px;
+}
+.inspect-btn{padding:6px 12px;border:1px solid #c9d6ff;border-radius:10px;background:#fff;font-weight:800;color:#1e40af}
+
+/* background colors by state */
 .bg-green{background:var(--green)}
 .bg-pink{background:var(--pink)}
-.bg-gray{background:var(--gray)}
-.bg-gray-strong{background:var(--gray-strong)}
+.bg-gray{background:var(--gray-deep)}
 .bg-yellow{background:var(--yellow)}
 .bg-blue{background:var(--blue)}
+
+.checkbox{display:inline-flex;align-items:center;gap:8px}
+.checkbox input{width:20px;height:20px}
+.count{color:#64748b;font-size:13px;margin:10px 4px}
