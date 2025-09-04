@@ -1,24 +1,137 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>調布市｜巡回</title>
-  <link rel="stylesheet" href="style.css?v=v5d"/>
-</head>
-<body data-page="city" data-city="調布市">
-  <header class="appbar appbar-city">
-    <div class="left"><a class="btn" href="index.html">戻る</a></div>
-    <div class="center"><div class="title">調布市</div></div>
-    <div class="right"></div>
-  </header>
+<!doctype html><html lang="ja"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>調布市</title>
+<link rel="stylesheet" href="style.css"/>
+</head><body>
+<header class="appbar">
+  <div class="left"><a class="btn" href="index.html">戻る</a></div>
+  <div class="title">調布市</div>
+  <div class="right"></div>
+</header>
+<main class="wrap">
+  <p id="hint" class="hint">同期後に表示されます。</p>
+  <div id="list" class="list"></div>
+</main>
+<div class="ver">v5e</div>
+<script src="app.js"></script>
+<script>
+(function(){
+  const CITY = "調布市";
+  const PREFIX = Junkai.CITY_PREFIX[CITY]||"";
+  const list = document.getElementById("list");
+  const hint = document.getElementById("hint");
 
-  <main class="wrap">
-    <p id="hint" class="hint">同期後に表示されます。</p>
-    <div id="list" class="city-list"></div>
-  </main>
+  function within7d(lastAt){
+    if(!lastAt) return false;
+    const t=Date.parse(lastAt); if(!Number.isFinite(t)) return false;
+    return (Date.now()-t) < 7*24*60*60*1000;
+  }
+  function rowClass(rec){
+    if(rec.checked) return "bg-pink";
+    if(rec.status==="stop") return "bg-gray";
+    if(rec.status==="skip") return "bg-yellow";
+    if(within7d(rec.last_inspected_at)) return "bg-blue";
+    return "bg-green";
+  }
+  function render(){
+    const data = Junkai.readCity(CITY);
+    list.innerHTML="";
+    if(!data.length){ hint.textContent="まだ同期されていません（インデックスの同期を押してください）"; return; }
+    hint.textContent = `件数：${data.length}`;
+    // local sort: station asc, number asc (安定)
+    data.sort((a,b)=> (a.station||"").localeCompare(b.station||"", "ja") || (a.number||"").localeCompare(b.number||"", "ja"));
+    for(const rec of data){
+      const wrapper = document.createElement("div");
+      wrapper.className = "row "+rowClass(rec);
 
-  <div class="ver">v5d</div>
-  <script src="app.js?v=v5d"></script>
-</body>
-</html>
+      const idx = document.createElement("div");
+      idx.className="idx";
+      const n = Junkai.displayIndexLabel(CITY, rec.number||"");
+      idx.textContent = n;
+
+      const chk = document.createElement("input");
+      chk.type="checkbox"; chk.checked=!!rec.checked;
+      chk.addEventListener("change",()=>{
+        rec.checked = chk.checked;
+        // チェックONはピンク、OFFは通常へ（last_inspected_atをクリア）
+        if(rec.checked){
+          const dt = new Date();
+          const md = String(dt.getMonth()+1).padStart(2,"0")+"/"+String(dt.getDate()).padStart(2,"0");
+          const hm = String(dt.getHours()).padStart(2,"0")+":"+String(dt.getMinutes()).padStart(2,"0");
+          when.querySelector(".md").textContent=md;
+          when.querySelector(".hm").textContent=hm;
+          rec.last_inspected_at = dt.toISOString();
+        }else{
+          rec.last_inspected_at = "";
+        }
+        // save
+        const arr = Junkai.readCity(CITY);
+        const i = arr.findIndex(x=> (x.number||"") === (rec.number||""));
+        if(i>=0) arr[i]=rec; else arr.push(rec);
+        localStorage.setItem(Junkai.LS_KEY(CITY), JSON.stringify(arr));
+        // repaint
+        wrapper.className = "row "+rowClass(rec);
+      });
+
+      const fields = document.createElement("div");
+      fields.className="fields";
+      const st = document.createElement("div"); st.className="st"; st.textContent=rec.station||"(無名)";
+      const sub = document.createElement("div"); sub.className="sub"; sub.textContent=(rec.model||"")+"　"+(rec.number||"");
+      fields.appendChild(st); fields.appendChild(sub);
+
+      const when = document.createElement("div");
+      when.className="when";
+      const md = document.createElement("div"); md.className="md";
+      const hm = document.createElement("div"); hm.className="hm";
+      if(rec.checked || rec.last_inspected_at){
+        const dt = rec.last_inspected_at? new Date(rec.last_inspected_at): new Date();
+        md.textContent = String(dt.getMonth()+1).padStart(2,"0")+"/"+String(dt.getDate()).padStart(2,"0");
+        hm.textContent = String(dt.getHours()).padStart(2,"0")+":"+String(dt.getMinutes()).padStart(2,"0");
+      }else{ md.textContent=""; hm.textContent=""; }
+      when.appendChild(md); when.appendChild(hm);
+      fields.appendChild(when);
+
+      const side = document.createElement("div");
+      side.className="side";
+      const sel = document.createElement("select"); sel.className="state";
+      [["normal","通常"],["stop","停止"],["skip","不要"]].forEach(([v,l])=>{
+        const o=document.createElement("option"); o.value=v;o.textContent=l; if(rec.status===v) o.selected=true; sel.appendChild(o);
+      });
+      sel.addEventListener("change",()=>{
+        rec.status = sel.value;
+        const arr = Junkai.readCity(CITY);
+        const i = arr.findIndex(x=> (x.number||"") === (rec.number||""));
+        if(i>=0) arr[i]=rec;
+        localStorage.setItem(Junkai.LS_KEY(CITY), JSON.stringify(arr));
+        wrapper.className = "row "+rowClass(rec);
+      });
+      const btn = document.createElement("button");
+      btn.className="btn tiny";
+      btn.textContent="点検";
+      btn.addEventListener("click",(ev)=>{
+        ev.preventDefault();
+        const u = new URL("https://rkworks2025-coder.github.io/r.k.w-/");
+        u.searchParams.set("station", rec.station||"");
+        u.searchParams.set("model", rec.model||"");
+        // フルナンバーは複数名が想定されるため、双方のキーに載せる
+        const num = rec.number||"";
+        u.searchParams.set("number", num);
+        u.searchParams.set("reg", num);
+        u.searchParams.set("num", num);
+        window.location.href = u.toString();
+      });
+
+      // compose
+      wrapper.appendChild(idx);
+      wrapper.appendChild(chk);
+      wrapper.appendChild(fields);
+      side.appendChild(sel);
+      side.appendChild(btn);
+      wrapper.appendChild(side);
+      list.appendChild(wrapper);
+    }
+  }
+  render();
+})();
+</script>
+</body></html>
