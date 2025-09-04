@@ -3,33 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>巡回リスト</title>
+  <title>巡回リスト（シンプル同期）</title>
   <style>
-    :root{--accent:#2b6bf6; --fg:#0e1a2b; --muted:#64748b; --chip:#eff4ff;
-          --green:#e8f7ec; --pink:#ffeaf1; --gray:#f1f2f5; --yellow:#fff9db; --blue:#e8f2ff;}
-    *{box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;margin:0;background:#f6f7fb;color:var(--fg)}
-    .appbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #e6e8ef}
-    .title{font-size:20px;font-weight:800;letter-spacing:.04em}
+    :root{--fg:#0f172a;--muted:#64748b;--chip:#eff4ff;}
+    html,body{margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f6f7fb;color:var(--fg)}
+    .appbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #e6e8ef}
+    .title{font-size:20px;font-weight:800}
     .btns{display:flex;gap:10px}
     .btn{appearance:none;border:1px solid #d7dbe7;padding:8px 14px;border-radius:12px;background:#fff;font-weight:700;font-size:14px;cursor:pointer}
     .btn-primary{background:var(--chip);border-color:#c9d6ff;color:#1e40af}
-    .wrap{max-width:860px;margin:18px auto;padding:0 14px 60px}
+    .wrap{max-width:820px;margin:18px auto;padding:0 14px 60px}
     .hint{margin:6px 2px 14px;color:var(--muted);font-size:13px}
     .cards{display:grid;grid-template-columns:1fr;gap:14px}
     .card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #e6e8ef;border-radius:16px;padding:18px 16px;box-shadow:0 1px 0 rgba(8,15,35,.03)}
-    .card:hover{background:#fafcff}
-    .card h2{margin:0 0 8px 0;font-size:18px;letter-spacing:.03em}
+    .card h2{margin:0 0 8px 0;font-size:18px}
     .meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px}
     .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f2f5fb;border:1px solid #e6e8ef}
     .empty{margin:28px 2px 0 2px;color:var(--muted);font-size:14px}
-    /* 進捗モーダル */
-    .modal{position:fixed;inset:0;background:rgba(8,15,35,.5);display:none;align-items:center;justify-content:center;z-index:50}
+    /* 簡易モーダル */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:50}
     .modal.show{display:flex}
-    .dialog{width:min(520px,90vw);background:#111827;color:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    .barwrap{height:8px;background:#1f2937;border-radius:999px;overflow:hidden;margin-top:12px}
+    .dialog{width:min(420px,90vw);background:#111827;color:#fff;border-radius:12px;padding:16px 16px}
+    .barwrap{height:8px;background:#1f2937;border-radius:999px;overflow:hidden;margin-top:10px}
     .bar{height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#a78bfa,#34d399)}
-    .dialog h3{margin:0 0 8px 0;font-size:18px}
   </style>
 </head>
 <body>
@@ -54,7 +51,6 @@
           <span class="chip">総 <span id="yamato-total">0</span></span>
         </div>
       </a>
-
       <a id="card-ebina" class="card" href="ebina.html" data-city="海老名市">
         <h2>海老名市</h2>
         <div class="meta">
@@ -64,7 +60,6 @@
           <span class="chip">総 <span id="ebina-total">0</span></span>
         </div>
       </a>
-
       <a id="card-chofu" class="card" href="chofu.html" data-city="調布市">
         <h2>調布市</h2>
         <div class="meta">
@@ -79,152 +74,140 @@
     <p id="overallHint" class="empty">まだ同期されていません</p>
   </main>
 
-  <!-- 同期中モーダル -->
+  <!-- 簡易モーダル -->
   <div id="progressModal" class="modal" aria-hidden="true">
     <div class="dialog">
-      <h3 id="progressTitle">同期中…</h3>
+      <div id="progressTitle">同期中…</div>
       <div class="barwrap"><div id="progressBar" class="bar"></div></div>
     </div>
   </div>
 
   <script>
-    // ===== 設定 =====
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby9RpFiUbYu6YX6JW9XfwbDx36_4AIlGEQMOxR3SnxgNdoRUJKfyxvF3b1SEYwuHb3X/exec";
-    const CITIES = ["大和市","海老名市","調布市"];
-    const LS_KEY = (city)=>`junkai:city:${city}`;
+  // ===== 設定 =====
+  const GAS_URL = (window.GAS_URL || "https://script.google.com/macros/s/AKfycby9RpFiUbYu6YX6JW9XfwbDx36_4AIlGEQMOxR3SnxgNdoRUJKfyxvF3b1SEYwuHb3X/exec");
+  const LS_KEY = (city) => \`junkai:city:\${city}\`;
+  const CITIES = ["大和市","海老名市","調布市"];
 
-    // ===== DOM =====
-    const els = {
-      syncBtn: document.getElementById("syncBtn"),
-      recalcBtn: document.getElementById("recalcBtn"),
-      statusText: document.getElementById("statusText"),
-      progressModal: document.getElementById("progressModal"),
-      progressBar: document.getElementById("progressBar"),
-      totals: {
-        "大和市": { done:"#yamato-done", stop:"#yamato-stop", skip:"#yamato-skip", total:"#yamato-total" },
-        "海老名市": { done:"#ebina-done", stop:"#ebina-stop", skip:"#ebina-skip", total:"#ebina-total" },
-        "調布市": { done:"#chofu-done", stop:"#chofu-stop", skip:"#chofu-skip", total:"#chofu-total" }
+  // ===== DOM =====
+  const els = {
+    syncBtn: document.getElementById("syncBtn"),
+    recalcBtn: document.getElementById("recalcBtn"),
+    statusText: document.getElementById("statusText"),
+    modal: document.getElementById("progressModal"),
+    bar: document.getElementById("progressBar"),
+    title: document.getElementById("progressTitle"),
+    totals: {
+      "大和市": { done:"#yamato-done", stop:"#yamato-stop", skip:"#yamato-skip", total:"#yamato-total" },
+      "海老名市": { done:"#ebina-done", stop:"#ebina-stop", skip:"#ebina-skip", total:"#ebina-total" },
+      "調布市": { done:"#chofu-done", stop:"#chofu-stop", skip:"#chofu-skip", total:"#chofu-total" }
+    }
+  };
+  const $ = (s)=>document.querySelector(s);
+
+  // ===== 簡易モーダル制御 =====
+  let progTimer=null, prog=0;
+  function openProgress(text){
+    if(els.title) els.title.textContent = text||"同期中…";
+    if(els.modal) els.modal.classList.add("show");
+    prog=0;
+    if(els.bar) els.bar.style.width="0%";
+    progTimer=setInterval(()=>{
+      prog=Math.min(98, prog+3);
+      if(els.bar) els.bar.style.width=prog+"%";
+    }, 100);
+  }
+  function closeProgress(text){
+    if(text && els.title) els.title.textContent=text;
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(els.bar) els.bar.style.width="100%";
+    setTimeout(()=>{ if(els.modal) els.modal.classList.remove("show"); if(els.bar) els.bar.style.width="0%"; }, 500);
+  }
+
+  // ===== 同期 =====
+  async function doSync(){
+    try{
+      els.statusText.textContent="同期中…";
+      openProgress("同期中…");
+
+      const res = await fetch(\`\${GAS_URL}?action=pull&ts=\${Date.now()}\`, {cache:"no-store"});
+      const json = await res.json().catch(()=> ({}));
+
+      // 2系統の形式を許容： {ok:true,data:[...]} か、配列そのもの
+      const rows = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      if(!Array.isArray(rows)){
+        els.statusText.textContent="取得失敗：形式エラー";
+        closeProgress("同期失敗");
+        return;
       }
-    };
-    function $(s){ return document.querySelector(s); }
 
-    // ===== プログレス =====
-    let progTimer=null;
-    function showProgress(on){
-      const modal = els.progressModal, bar = els.progressBar;
-      if(!modal || !bar) return;
-      if(on){
-        modal.classList.add("show");
-        bar.style.width="0%";
-        let t=0;
-        progTimer = setInterval(()=>{ t=(t+7)%100; bar.style.width=t+"%"; }, 80);
-      }else{
-        if(progTimer){ clearInterval(progTimer); progTimer=null; }
-        modal.classList.remove("show");
-        els.progressBar.style.width="0%";
-      }
-    }
-
-    // ===== 正規化（オブジェクト/配列の両対応） =====
-    function normalize(row){
-      if(Array.isArray(row)){
-        const city = String(row[0]||"").trim();
-        const station = String(row[1]||"").trim();
-        const model = String(row[2]||"").trim();
-        const number = String(row[3]||"").trim();
-        return { city, station, model, number, status:"normal", checked:false, index:0, last_inspected_at:"" };
-      }else if(row && typeof row==="object"){
-        const city = String(row.city||"").trim();
-        const station = String(row.station||"").trim();
-        const model = String(row.model||"").trim();
-        const number = String(row.number||row.plate||"").trim();
-        const status = String(row.status||"normal").trim();
-        const checked = !!row.checked;
-        let index = Number.isFinite(+row.index)?parseInt(row.index,10):0;
-        const last_inspected_at = String(row.last_inspected_at||"").trim();
-        return { city, station, model, number, status, checked, index, last_inspected_at };
-      }
-      return { city:"", station:"", model:"", number:"", status:"normal", checked:false, index:0, last_inspected_at:"" };
-    }
-
-    // ===== 保存/読込 =====
-    function saveCity(city, arr){
-      localStorage.setItem(LS_KEY(city), JSON.stringify(arr));
-    }
-    function readCity(city){
-      try{
-        const s = localStorage.getItem(LS_KEY(city));
-        if(!s) return [];
-        const a = JSON.parse(s);
-        return Array.isArray(a)?a:[];
-      }catch(_){ return []; }
-    }
-
-    // ===== 再計算 =====
-    function recalcAll(){
-      let overall=0;
-      CITIES.forEach(city=>{
-        const arr = readCity(city);
-        overall += arr.length;
-        const cnt = { done:0, stop:0, skip:0, total:arr.length };
-        for(const it of arr){
-          if(it.status==="stop") cnt.stop++;
-          else if(it.status==="skip") cnt.skip++;
-          if(it.checked || it.status==="done") cnt.done++;
+      const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
+      rows.forEach(r=>{
+        let city, station, model, number, status, checked, index, last_inspected_at;
+        if(Array.isArray(r)){ // 配列の配列
+          city   = String(r[0]??"").trim();
+          station= String(r[1]??"").trim();
+          model  = String(r[2]??"").trim();
+          number = String(r[3]??"").trim();
+          status = String(r[4]??"normal").trim();
+          checked= !!r[5];
+          index  = parseInt(r[6]||0,10)||0;
+          last_inspected_at = String(r[7]??"").trim();
+        }else{ // レコード形式
+          city   = String(r.city??"").trim();
+          station= String(r.station??"").trim();
+          model  = String(r.model??"").trim();
+          number = String(r.number??r.plate??"").trim();
+          status = String(r.status??"normal").trim();
+          checked= !!r.checked;
+          index  = parseInt(r.index||0,10)||0;
+          last_inspected_at = String(r.last_inspected_at??"").trim();
         }
-        const map = els.totals[city];
-        $(map.done).textContent = cnt.done;
-        $(map.stop).textContent = cnt.stop;
-        $(map.skip).textContent = cnt.skip;
-        $(map.total).textContent = cnt.total;
+        if(buckets[city]){
+          buckets[city].push({city,station,model,number,status,checked,index,last_inspected_at});
+        }
       });
-      const hint = document.getElementById("overallHint");
-      hint.textContent = overall>0 ? `総件数：${overall}` : "まだ同期されていません";
+
+      // 保存
+      CITIES.forEach(c=> localStorage.setItem(LS_KEY(c), JSON.stringify(buckets[c])) );
+      // 再計算
+      recalcAll();
+      els.statusText.textContent="同期完了！";
+      closeProgress("同期完了！");
+    }catch(e){
+      console.error(e);
+      els.statusText.textContent="同期失敗：通信エラー";
+      closeProgress("同期失敗");
+      alert("同期に失敗しました。通信状況を確認してください。");
     }
+  }
 
-    // ===== 同期 =====
-    async function doSync(){
-      try{
-        showProgress(true);
-        els.statusText.textContent = "GAS から取得中…";
-        const res = await fetch(`${GAS_URL}?action=pull&ts=${Date.now()}`, { cache:"no-store" });
-        const json = await res.json().catch(()=>null);
-        if(!json){
-          els.statusText.textContent = "同期失敗：応答なし";
-          showProgress(false); return;
-        }
-        let rows;
-        if(Array.isArray(json)) rows = json;               // 配列そのまま
-        else if(Array.isArray(json.data)) rows = json.data; // {ok:true,data:[...]}
-        else { els.statusText.textContent = "同期失敗：形式不明"; showProgress(false); return; }
-
-        const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
-        for(const raw of rows){
-          const rec = normalize(raw);
-          if(buckets[rec.city]) buckets[rec.city].push(rec);
-        }
-        // index が無い行に 1..N を仮付与
-        Object.keys(buckets).forEach(city=>{
-          const arr = buckets[city];
-          arr.forEach((r,i)=>{ if(!(Number.isFinite(+r.index) && +r.index>0)) r.index = i+1; });
-          saveCity(city, arr);
-        });
-
-        recalcAll();
-        els.statusText.textContent = "同期完了";
-      }catch(e){
-        console.error(e);
-        els.statusText.textContent = "同期失敗：通信エラー";
-      }finally{
-        showProgress(false);
-      }
+  // ===== 再計算 =====
+  function recalcAll(){
+    let overall=0;
+    for(const city of CITIES){
+      const s = localStorage.getItem(LS_KEY(city));
+      const arr = s ? (JSON.parse(s) || []) : [];
+      overall += arr.length;
+      const cnt = {done:0,stop:0,skip:0,total:arr.length};
+      arr.forEach(it=>{
+        if(it.status==="stop") cnt.stop++;
+        else if(it.status==="skip") cnt.skip++;
+        if(it.checked || it.status==="done") cnt.done++;
+      });
+      const map = els.totals[city];
+      $(map.done).textContent=cnt.done;
+      $(map.stop).textContent=cnt.stop;
+      $(map.skip).textContent=cnt.skip;
+      $(map.total).textContent=cnt.total;
     }
+    document.getElementById("overallHint").textContent = overall>0 ? \`総件数：\${overall}\` : "まだ同期されていません";
+  }
 
-    // ===== 結線 =====
-    els.syncBtn?.addEventListener("click", doSync, { once:false });
-    els.recalcBtn?.addEventListener("click", recalcAll, { once:false });
-    // 起動時
-    recalcAll();
+  // ===== 配線 =====
+  els.syncBtn?.addEventListener("click", doSync);
+  els.recalcBtn?.addEventListener("click", recalcAll);
+  // 初期
+  recalcAll();
   </script>
 </body>
 </html>
