@@ -336,9 +336,11 @@ const Junkai = (()=>{
       // top row with station title and date/time aligned
       const topRow = document.createElement('div');
       topRow.className = 'toprow';
+      // flex layout: let station title expand to occupy remaining width
       topRow.style.display = 'flex';
-      topRow.style.justifyContent = 'space-between';
       topRow.style.alignItems = 'flex-start';
+      // Allow title to take up remaining space while date/time retains its width
+      title.style.flex = '1';
       topRow.appendChild(title);
       topRow.appendChild(dtDiv);
       // assemble mid: top row and sub-line
