@@ -63,3 +63,12 @@ html,body{margin:0;padding:0;background:#f6f7fb;color:var(--fg);font-family:-app
 
 /* version */
 .ver{position:fixed;right:8px;bottom:6px;font-size:10px;color:#94a3b8;opacity:.7;pointer-events:none;z-index:9}
+
+/* date/time display within right column */
+.datetime{
+  font-size:12px;
+  color:#475569;
+  line-height:1.2;
+  text-align:right;
+  white-space:nowrap;
+}

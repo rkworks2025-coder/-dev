@@ -295,6 +295,9 @@ const Junkai = (()=>{
           // when unchecked, clear the last inspection time to avoid the 7-day rule
           rec.last_inspected_at = '';
         }
+        // update the date/time UI
+        updateDateTime();
+        // persist and repaint
         persistCityRec(city, rec);
         // update row background color
         row.className = `row ${rowBg(rec)}`;
@@ -313,9 +316,31 @@ const Junkai = (()=>{
       mid.appendChild(title);
       mid.appendChild(sub);
 
-      // right column: status select and button
+      // right column: status select and button (and optional date/time)
       const right = document.createElement('div');
       right.className = 'rightcol';
+
+      // date/time display (two lines: mm/dd and hh:mm)
+      const dtDiv = document.createElement('div');
+      dtDiv.className = 'datetime';
+      function updateDateTime(){
+        if(rec.last_inspected_at){
+          const d = new Date(rec.last_inspected_at);
+          if(Number.isFinite(d.getTime())){
+            const mm = String(d.getMonth()+1).padStart(2,'0');
+            const dd = String(d.getDate()).padStart(2,'0');
+            const hh = String(d.getHours()).padStart(2,'0');
+            const mi = String(d.getMinutes()).padStart(2,'0');
+            dtDiv.innerHTML = `${mm}/${dd}<br>${hh}:${mi}`;
+            dtDiv.style.display = '';
+            return;
+          }
+        }
+        dtDiv.innerHTML = '';
+        dtDiv.style.display = 'none';
+      }
+      updateDateTime();
+
       const sel = document.createElement('select');
       sel.className = 'state';
       [['normal', '通常'], ['stop', '停止'], ['skip', '不要']].forEach(([v, lab]) => {
@@ -337,6 +362,8 @@ const Junkai = (()=>{
         const q = new URLSearchParams({ station: rec.station || '', model: rec.model || '', number: rec.number || '' });
         location.href = `${TIRE_APP_URL}?${q.toString()}`;
       });
+      // append date/time display before the controls
+      right.appendChild(dtDiv);
       right.appendChild(sel);
       right.appendChild(btn);
 
