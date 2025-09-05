@@ -317,7 +317,7 @@ const Junkai = (()=>{
       mid.appendChild(title);
       mid.appendChild(sub);
 
-      // date/time element; will be appended into right column
+      // date/time element; will be appended as its own column
       const dtDiv = document.createElement('div');
       dtDiv.className = 'datetime';
       function updateDateTime(){
@@ -338,7 +338,7 @@ const Junkai = (()=>{
       }
       updateDateTime();
 
-      // right column: holds date/time, status select and the inspection button
+      // right column: holds status select and the inspection button
       const right = document.createElement('div');
       right.className = 'rightcol';
 
@@ -364,14 +364,14 @@ const Junkai = (()=>{
         const q = new URLSearchParams({ station: rec.station || '', model: rec.model || '', number: rec.number || '' });
         location.href = `${TIRE_APP_URL}?${q.toString()}`;
       });
-      // append date/time and controls to right column
-      right.appendChild(dtDiv);
+      // append controls to right column
       right.appendChild(sel);
       right.appendChild(btn);
 
-      // append columns
+      // append columns: left column, mid column, date/time column, right column
       row.appendChild(left);
       row.appendChild(mid);
+      row.appendChild(dtDiv);
       row.appendChild(right);
       list.appendChild(row);
     }
