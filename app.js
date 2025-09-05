@@ -279,13 +279,24 @@ const Junkai = (()=>{
       chk.type = 'checkbox';
       chk.checked = !!rec.checked;
       chk.addEventListener('change', () => {
-        if (!confirm(chk.checked ? 'チェックを付けます。よろしいですか？' : 'チェックを外します。よろしいですか？')) {
+        // confirm before toggling
+        const message = chk.checked ? 'チェックを付けます。よろしいですか？' : 'チェックを外します。よろしいですか？';
+        if (!confirm(message)) {
+          // revert state if user cancels
           chk.checked = !chk.checked;
           return;
         }
+        // update record
         rec.checked = chk.checked;
-        if (rec.checked) rec.last_inspected_at = new Date().toISOString();
+        if (rec.checked) {
+          // when checked, record the inspection time
+          rec.last_inspected_at = new Date().toISOString();
+        } else {
+          // when unchecked, clear the last inspection time to avoid the 7-day rule
+          rec.last_inspected_at = '';
+        }
         persistCityRec(city, rec);
+        // update row background color
         row.className = `row ${rowBg(rec)}`;
       });
       left.appendChild(chk);
