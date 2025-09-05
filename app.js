@@ -129,32 +129,86 @@ const Junkai = (()=>{
 
         // prepare buckets for each supported city
         const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
-        for(const r of json.data){
-          // GAS returns either an object with named properties or an array.
-          // When array, the fields are assumed to be:
-          //   0=city, 1=station, 2=model, 3=number, 4=status (optional), 5=index (optional)
+        // some GAS deployments return data under 'data', others under 'values'
+        let arr = Array.isArray(json.data) ? json.data : (Array.isArray(json.values) ? json.values : []);
+        // if there is no array, bail out
+        if(!Array.isArray(arr)) arr = [];
+
+        // detect header row dynamically (e.g. ['TSエリア','city','所在地','station','model','plate',...])
+        let headerMap = null;
+        if(arr.length > 0 && Array.isArray(arr[0])){
+          const firstRow = arr[0];
+          // check if the first row contains english column names like 'city' or 'station'
+          const lower = firstRow.map(x => (typeof x === 'string' ? x.trim().toLowerCase() : ''));
+          if(lower.some(x => x.includes('city')) && lower.some(x => x.includes('station'))){
+            headerMap = {};
+            for(let i=0;i<firstRow.length;i++){
+              const col = lower[i];
+              if(col.includes('city')) headerMap.city = i;
+              else if(col.includes('station')) headerMap.station = i;
+              else if(col.includes('model')) headerMap.model = i;
+              else if(col.includes('plate') || col.includes('number')) headerMap.number = i;
+              else if(col.includes('status')) headerMap.status = i;
+            }
+            // remove header row from array
+            arr = arr.slice(1);
+          }
+        }
+
+        for(const r of arr){
           let rowObj;
           if(Array.isArray(r)){
-            // defensive mapping with defaults
-            rowObj = {
-              city: r[0] || '',
-              station: r[1] || '',
-              model: r[2] || '',
-              number: r[3] || '',
-              status: r[4] || 'normal',
-              checked: false,
-              index: r[5] || '',
-              last_inspected_at: ''
-            };
+            if(headerMap){
+              // when headerMap is detected, use it to map columns
+              const city = r[headerMap.city ?? 0] || '';
+              const station = r[headerMap.station ?? 1] || '';
+              const model = r[headerMap.model ?? 2] || '';
+              const number = r[headerMap.number ?? 3] || '';
+              const status = r[headerMap.status ?? 4] || 'normal';
+              rowObj = { city, station, model, number, status, checked:false, index:'', last_inspected_at:'' };
+            }else{
+              // skip header rows that explicitly contain 'city' in the second column
+              if(r.length >= 2 && typeof r[1] === 'string' && r[1].trim().toLowerCase() === 'city'){
+                continue;
+              }
+              // detect TS-prefixed rows: r[0] starts with 'TS' and r has at least 6 columns
+              if(r.length >= 6 && typeof r[0] === 'string' && r[0].trim().startsWith('TS')){
+                const city = r[1] || '';
+                const station = r[3] || '';
+                const model = r[4] || '';
+                const number = r[5] || '';
+                const status = r[6] || 'normal';
+                rowObj = { city, station, model, number, status, checked:false, index:'', last_inspected_at:'' };
+              }else{
+                // fallback heuristics
+                if(r.length >= 6){
+                  // assume r[1]=city, r[3]=station, r[4]=model, r[5]=plate
+                  const city = r[1] || r[0] || '';
+                  const station = r[3] || r[1] || '';
+                  const model = r[4] || r[2] || '';
+                  const number = r[5] || r[3] || '';
+                  const status = r[6] || 'normal';
+                  rowObj = { city, station, model, number, status, checked:false, index:'', last_inspected_at:'' };
+                }else{
+                  // simple case: 0=city,1=station,2=model,3=number,4=status
+                  const city = r[0] || '';
+                  const station = r[1] || '';
+                  const model = r[2] || '';
+                  const number = r[3] || '';
+                  const status = r[4] || 'normal';
+                  rowObj = { city, station, model, number, status, checked:false, index:'', last_inspected_at:'' };
+                }
+              }
+            }
           }else if(r && typeof r === 'object'){
             rowObj = r;
           }else{
             continue;
           }
-          const city = (rowObj.city || '').trim();
-          if(!buckets[city]) continue;
+          const cityName = (rowObj.city || '').trim();
+          if(!buckets[cityName]) continue;
           const rec = normalize(rowObj);
-          buckets[city].push(rec);
+          buckets[cityName].push(rec);
         }
 
         // 成功時のみ保存（空配列なら上書きしない）
