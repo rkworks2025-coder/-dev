@@ -1,25 +1,26 @@
+
 <!doctype html>
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>巡回リスト</title>
-  <link rel="stylesheet" href="style.css?v=20250901" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="ver">v6a</div>
   <header class="appbar">
     <div class="title">巡回リスト</div>
     <div class="btns">
-      <button id="recalcBtn" class="btn">再計算</button>
-      <button id="syncBtn" class="btn btn-primary">同期</button>
+      <button id="syncBtn" class="btn primary">同期</button>
     </div>
   </header>
 
   <main class="wrap">
-    <p id="statusText" class="hint">GASから取得して各エリアに保存・反映します。</p>
+    <p id="statusText" class="hint">GASから取得して各エリアに保存します。</p>
 
-    <section id="cityCards" class="cards">
-      <a id="card-yamato" class="card" href="yamato.html" data-city="大和市">
+    <section class="cards">
+      <a class="cardlink" href="yamato.html">
         <h2>大和市</h2>
         <div class="meta">
           <span class="chip">済 <span id="yamato-done">0</span></span>
@@ -29,7 +30,7 @@
         </div>
       </a>
 
-      <a id="card-ebina" class="card" href="ebina.html" data-city="海老名市">
+      <a class="cardlink" href="ebina.html">
         <h2>海老名市</h2>
         <div class="meta">
           <span class="chip">済 <span id="ebina-done">0</span></span>
@@ -39,7 +40,7 @@
         </div>
       </a>
 
-      <a id="card-chofu" class="card" href="chofu.html" data-city="調布市">
+      <a class="cardlink" href="chofu.html">
         <h2>調布市</h2>
         <div class="meta">
           <span class="chip">済 <span id="chofu-done">0</span></span>
@@ -60,145 +61,9 @@
     </div>
   </div>
 
+  <script src="app.js"></script>
   <script>
-  // ==========================
-  // 設定
-  // ==========================
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbzPYLa_qkxjqsW42IY5xIVjmZR-fCfgovr-jFiifQC9qKkMQ-I0TE8R2e4F1wAKzzlpYQ/exec";
-  const LS_KEY = (city) => `junkai:city:${city}`;   // 都市ごとの保存キー
-  const CITIES = ["大和市","海老名市","調布市"];
-
-  // ==========================
-  // DOM 取得
-  // ==========================
-  const els = {
-    syncBtn: document.getElementById("syncBtn"),
-    recalcBtn: document.getElementById("recalcBtn"),
-    statusText: document.getElementById("statusText"),
-    progressModal: document.getElementById("progressModal"),
-    progressBar: document.getElementById("progressBar"),
-    cityCardsWrap: document.getElementById("cityCards"),
-    totals: {
-      "大和市": { done: "#yamato-done", stop: "#yamato-stop", skip: "#yamato-skip", total: "#yamato-total" },
-      "海老名市": { done: "#ebina-done", stop: "#ebina-stop", skip: "#ebina-skip", total: "#ebina-total" },
-      "調布市": { done: "#chofu-done", stop: "#chofu-stop", skip: "#chofu-skip", total: "#chofu-total" }
-    }
-  };
-
-  function showProgress(on) {
-    if (!els.progressModal) return;
-    if (on) els.progressModal.classList.add("show");
-    else els.progressModal.classList.remove("show");
-  }
-  function setBar(pct) {
-    if (els.progressBar) els.progressBar.style.width = `${Math.max(0, Math.min(100, pct))}%`;
-  }
-
-  // ==========================
-  // 同期：GAS から pull → 都市別保存
-  // ==========================
-  async function doSync() {
-    try {
-      showProgress(true);
-      setBar(10);
-      els.statusText.textContent = "GASへ問い合わせ中…";
-
-      const res = await fetch(`${GAS_URL}?action=pull`, { method: "GET", redirect: "follow" });
-      setBar(40);
-      const json = await res.json().catch(()=> ({}));
-
-      if (!json || !json.ok || !Array.isArray(json.data)) {
-        els.statusText.textContent = "取得失敗：応答形式エラー";
-        showProgress(false);
-        return;
-      }
-
-      // 都市別に仕分け
-      const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
-      for (const raw of json.data) {
-        const city = (raw.city || "").trim();
-        if (!buckets[city]) continue; // 対象外都市は破棄
-        const rec = normalizeRecord(raw);
-        buckets[city].push(rec);
-      }
-
-      // 保存（上書き）
-      setBar(70);
-      for (const city of CITIES) {
-        localStorage.setItem(LS_KEY(city), JSON.stringify(buckets[city]));
-      }
-
-      // 件数再計算
-      recalcAll();
-      setBar(100);
-      els.statusText.textContent = `同期完了：${new Date().toLocaleString("ja-JP",{hour12:false})}`;
-    } catch (e) {
-      els.statusText.textContent = "同期失敗：通信エラー";
-    } finally {
-      setTimeout(()=> showProgress(false), 400);
-    }
-  }
-
-  function normalizeRecord(r) {
-    const city = (r.city || "").trim();
-    const station = (r.station || "").trim();
-    const model = (r.model || "").trim();
-    const number = (r.number || "").trim();
-    const status = (r.status || "normal").trim(); // normal/stop/skip/done
-    const checked = !!r.checked;
-    let index = Number.isFinite(+r.index) ? parseInt(r.index,10) : 0;
-    if (index < 1) index = 0;
-    const lastAt = (r.last_inspected_at || "").trim();
-    return { city, station, model, number, status, checked, index, last_inspected_at: lastAt };
-  }
-
-  // ==========================
-  // 件数再計算（ローカルから）
-  // ==========================
-  function recalcAll() {
-    let overall = 0;
-    for (const city of CITIES) {
-      const arr = readCity(city);
-      overall += arr.length;
-      const cnt = { done:0, stop:0, skip:0, total:arr.length };
-      for (const it of arr) {
-        if (it.status === "stop") cnt.stop++;
-        else if (it.status === "skip") cnt.skip++;
-        if (it.checked || it.status === "done") cnt.done++;
-      }
-      const map = els.totals[city];
-      document.querySelector(map.done).textContent  = cnt.done;
-      document.querySelector(map.stop).textContent  = cnt.stop;
-      document.querySelector(map.skip).textContent  = cnt.skip;
-      document.querySelector(map.total).textContent = cnt.total;
-    }
-    const hint = document.getElementById("overallHint");
-    if (overall > 0) hint.textContent = `総件数：${overall}（画面を開き直すと各エリアのカードが反映されます）`;
-    else hint.textContent = "まだ同期されていません";
-  }
-
-  function readCity(city) {
-    try {
-      const s = localStorage.getItem(LS_KEY(city));
-      if (!s) return [];
-      const arr = JSON.parse(s);
-      if (!Array.isArray(arr)) return [];
-      // index が 0 or 未設定なら 1..N を仮付与（受信順）
-      let needFix = false;
-      arr.forEach((x,i)=>{ if (!Number.isFinite(+x.index) || +x.index<1){x.index = i+1; needFix=true;} });
-      if (needFix) localStorage.setItem(LS_KEY(city), JSON.stringify(arr));
-      return arr;
-    } catch(_) { return []; }
-  }
-
-  // ==========================
-  // イベント
-  // ==========================
-  els.syncBtn.addEventListener("click", doSync);
-  els.recalcBtn.addEventListener("click", recalcAll);
-
-  // 起動時一度だけ再計算
-  recalcAll();
+    Junkai.initIndex();
   </script>
 </body>
 </html>

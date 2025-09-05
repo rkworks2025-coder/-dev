@@ -127,11 +127,33 @@ const Junkai = (()=>{
         showProgress(true, 55);
         if(!json || json.ok!==true || !Array.isArray(json.data)) throw new Error('bad-shape');
 
+        // prepare buckets for each supported city
         const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
         for(const r of json.data){
-          const city = (r.city||'').trim();
+          // GAS returns either an object with named properties or an array.
+          // When array, the fields are assumed to be:
+          //   0=city, 1=station, 2=model, 3=number, 4=status (optional), 5=index (optional)
+          let rowObj;
+          if(Array.isArray(r)){
+            // defensive mapping with defaults
+            rowObj = {
+              city: r[0] || '',
+              station: r[1] || '',
+              model: r[2] || '',
+              number: r[3] || '',
+              status: r[4] || 'normal',
+              checked: false,
+              index: r[5] || '',
+              last_inspected_at: ''
+            };
+          }else if(r && typeof r === 'object'){
+            rowObj = r;
+          }else{
+            continue;
+          }
+          const city = (rowObj.city || '').trim();
           if(!buckets[city]) continue;
-          const rec = normalize(r);
+          const rec = normalize(rowObj);
           buckets[city].push(rec);
         }
 
