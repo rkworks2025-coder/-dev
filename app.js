@@ -250,8 +250,16 @@ const Junkai = (()=>{
           }
           status('シート更新中…');
           const json = JSON.stringify(all);
-          const url = `${GAS_URL}?action=push&data=${encodeURIComponent(json)}`;
-          const res = await fetch(url, { method:'GET' });
+          // prepare POST body. Send as URL‑encoded to avoid URL length limits
+          const params = new URLSearchParams();
+          params.append('action', 'push');
+          params.append('data', json);
+          const url = `${GAS_URL}`;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
           let result = null;
           try {
             result = await res.json();
