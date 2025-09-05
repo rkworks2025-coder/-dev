@@ -31,8 +31,24 @@ html,body{margin:0;padding:0;background:#f6f7fb;color:var(--fg);font-family:-app
 .row{display:grid;grid-template-columns:56px 1fr 150px;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px}
 .row .idx{font-weight:800;color:#334155;justify-self:center}
 .row .mid{display:flex;flex-direction:column;gap:4px;min-width:0}
-.row .title{font-weight:800;font-size:18px;word-break:keep-all;overflow-wrap:anywhere}
-.row .sub{color:#475569}
+/* In city pages, ensure station name wraps naturally but no more than two lines */
+.row .title{
+  font-weight:800;
+  font-size:18px;
+  /* allow wrapping at natural boundaries */
+  white-space:normal;
+  /* limit to two lines and hide overflow */
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  line-height:1.3;
+}
+/* Keep model and plate on a single line */
+.row .sub{
+  color:#475569;
+  white-space:nowrap;
+}
 .rightcol{display:flex;flex-direction:column;gap:10px;justify-self:end}
 .state{padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#fff}
 .btn.tiny{padding:8px 12px;font-size:13px;border-radius:10px;border:1px solid var(--line)}

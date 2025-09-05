@@ -134,6 +134,10 @@ const Junkai = (()=>{
         let arr = Array.isArray(json.data) ? json.data : (Array.isArray(json.values) ? json.values : []);
         // if there is no array, bail out
         if(!Array.isArray(arr)) arr = [];
+        // fallback: if arr is empty and json itself is an array of arrays (root-level list)
+        if(arr.length === 0 && Array.isArray(json) && Array.isArray(json[0])){
+          arr = json;
+        }
 
         // detect header row dynamically (e.g. ['TSエリア','city','所在地','station','model','plate',...])
         let headerMap = null;
@@ -165,8 +169,8 @@ const Junkai = (()=>{
               const station = r[headerMap.station ?? 1] || '';
               const model = r[headerMap.model ?? 2] || '';
               const number = r[headerMap.number ?? 3] || '';
-              const status = r[headerMap.status ?? 4] || 'normal';
-              rowObj = { city, station, model, number, status, checked:false, index:'', last_inspected_at:'' };
+              const status = (headerMap.status !== undefined ? (r[headerMap.status] || '') : 'normal');
+              rowObj = { city, station, model, number, status: status || 'normal', checked:false, index:'', last_inspected_at:'' };
             }else{
               // skip header rows that explicitly contain 'city' in the second column
               if(r.length >= 2 && typeof r[1] === 'string' && r[1].trim().toLowerCase() === 'city'){
