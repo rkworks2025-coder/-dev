@@ -125,7 +125,8 @@ const Junkai = (()=>{
         showProgress(true, 35);
         const json = await fetchJSONWithRetry(u, 2);
         showProgress(true, 55);
-        if(!json || json.ok!==true || !Array.isArray(json.data)) throw new Error('bad-shape');
+        // accept json.data or json.values as array; do not require json.ok===true to support more GAS deployments
+        if(!json || (!Array.isArray(json.data) && !Array.isArray(json.values))) throw new Error('bad-shape');
 
         // prepare buckets for each supported city
         const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
