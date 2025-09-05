@@ -335,7 +335,9 @@ const Junkai = (()=>{
       title.textContent = rec.station || '';
       const sub = document.createElement('div');
       sub.className = 'sub';
-      sub.textContent = `${rec.model || ''}　${rec.number || ''}`;
+      // display model and plate on separate lines to prevent overlap with right column
+      // Use innerHTML with a <br> so the two values wrap naturally
+      sub.innerHTML = `${rec.model || ''}<br>${rec.number || ''}`;
       // append title and sub into mid (stacked)
       mid.appendChild(title);
       mid.appendChild(sub);

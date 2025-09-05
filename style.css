@@ -50,9 +50,12 @@ html,body{margin:0;padding:0;background:#f6f7fb;color:var(--fg);font-family:-app
   line-height:1.3;
 }
 /* Keep model and plate on a single line */
+/* sub-line holds model and plate; allow wrapping to two lines */
 .row .sub{
   color:#475569;
-  white-space:nowrap;
+  /* allow model and plate to appear on separate lines */
+  white-space:normal;
+  line-height:1.2;
 }
 .rightcol{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
 .state{padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#fff}
