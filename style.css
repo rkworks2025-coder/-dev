@@ -28,9 +28,12 @@ html,body{margin:0;padding:0;background:#f6f7fb;color:var(--fg);font-family:-app
 
 /* city rows */
 .list{display:flex;flex-direction:column;gap:10px}
-.row{display:grid;grid-template-columns:auto 1fr 70px 150px;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px;position:relative}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px}
 .row .idx{font-weight:800;color:#334155;/* alignment handled by flex in leftcol */}
-.row .leftcol{display:flex;align-items:center;gap:6px;}
+.row .leftcol{display:flex;flex-direction:column;gap:4px;align-items:flex-start;}
+
+/* top row inside left column holds index and checkbox */
+.row .left-top{display:flex;align-items:center;gap:6px;}
 .row .mid{display:flex;flex-direction:column;gap:4px;min-width:0}
 /* In city pages, ensure station name wraps naturally but no more than two lines */
 .row .title{
@@ -51,7 +54,7 @@ html,body{margin:0;padding:0;background:#f6f7fb;color:var(--fg);font-family:-app
   color:#475569;
   white-space:nowrap;
 }
-.rightcol{display:flex;flex-direction:column;gap:10px;justify-self:end;align-items:flex-end}
+.rightcol{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
 .state{padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#fff}
 .btn.tiny{padding:8px 12px;font-size:13px;border-radius:10px;border:1px solid var(--line)}
 
@@ -70,7 +73,7 @@ html,body{margin:0;padding:0;background:#f6f7fb;color:var(--fg);font-family:-app
   font-size:12px;
   color:#475569;
   line-height:1.2;
-  text-align:right;
+  text-align:left;
   /* allow line breaks so MM/DD and HH:MM display on separate lines */
   white-space:normal;
 }

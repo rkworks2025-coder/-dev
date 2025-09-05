@@ -266,60 +266,27 @@ const Junkai = (()=>{
       const row = document.createElement('div');
       row.className = `row ${rowBg(rec)}`;
 
-      // left column: index number and checkbox side by side
+      // left column: top row with index + checkbox; bottom row for date/time
       const left = document.createElement('div');
       left.className = 'leftcol';
       // index element
       const idxDiv = document.createElement('div');
       idxDiv.className = 'idx';
       idxDiv.textContent = rec.ui_index || '';
-      left.appendChild(idxDiv);
       // checkbox
       const chk = document.createElement('input');
       chk.type = 'checkbox';
       chk.checked = !!rec.checked;
-      chk.addEventListener('change', () => {
-        // confirm before toggling
-        const message = chk.checked ? 'チェックを付けます。よろしいですか？' : 'チェックを外します。よろしいですか？';
-        if (!confirm(message)) {
-          // revert state if user cancels
-          chk.checked = !chk.checked;
-          return;
-        }
-        // update record
-        rec.checked = chk.checked;
-        if (rec.checked) {
-          // when checked, record the inspection time
-          rec.last_inspected_at = new Date().toISOString();
-        } else {
-          // when unchecked, clear the last inspection time to avoid the 7-day rule
-          rec.last_inspected_at = '';
-        }
-        // update the date/time UI
-        updateDateTime();
-        // persist and repaint
-        persistCityRec(city, rec);
-        // update row background color
-        row.className = `row ${rowBg(rec)}`;
-      });
-      left.appendChild(chk);
-
-      // middle column: station title and sub-line (date/time is rendered in the right column)
-      const mid = document.createElement('div');
-      mid.className = 'mid';
-      const title = document.createElement('div');
-      title.className = 'title';
-      title.textContent = rec.station || '';
-      const sub = document.createElement('div');
-      sub.className = 'sub';
-      sub.textContent = `${rec.model || ''}　${rec.number || ''}`;
-      // append title and sub into mid (stacked)
-      mid.appendChild(title);
-      mid.appendChild(sub);
-
-      // date/time element; will be appended as its own column
+      chk.className = 'chk';
+      // top container for index and checkbox
+      const topLeft = document.createElement('div');
+      topLeft.className = 'left-top';
+      topLeft.appendChild(idxDiv);
+      topLeft.appendChild(chk);
+      // date/time element (hidden when no date)
       const dtDiv = document.createElement('div');
       dtDiv.className = 'datetime';
+      // helper to update the date/time display
       function updateDateTime(){
         if(rec.last_inspected_at){
           const d = new Date(rec.last_inspected_at);
@@ -336,7 +303,44 @@ const Junkai = (()=>{
         dtDiv.innerHTML = '';
         dtDiv.style.display = 'none';
       }
+      // initialize date/time display
       updateDateTime();
+      // assemble left column
+      left.appendChild(topLeft);
+      left.appendChild(dtDiv);
+      // checkbox change handler with confirmation
+      chk.addEventListener('change', () => {
+        const message = chk.checked ? 'チェックを付けます。よろしいですか？' : 'チェックを外します。よろしいですか？';
+        if (!confirm(message)) {
+          chk.checked = !chk.checked;
+          return;
+        }
+        const nowISO = new Date().toISOString();
+        rec.checked = chk.checked;
+        if(chk.checked){
+          rec.last_inspected_at = nowISO;
+        } else {
+          rec.last_inspected_at = '';
+        }
+        updateDateTime();
+        persistCityRec(city, rec);
+        row.className = `row ${rowBg(rec)}`;
+      });
+
+      // middle column: station title and sub-line (date/time is rendered in the right column)
+      const mid = document.createElement('div');
+      mid.className = 'mid';
+      const title = document.createElement('div');
+      title.className = 'title';
+      title.textContent = rec.station || '';
+      const sub = document.createElement('div');
+      sub.className = 'sub';
+      sub.textContent = `${rec.model || ''}　${rec.number || ''}`;
+      // append title and sub into mid (stacked)
+      mid.appendChild(title);
+      mid.appendChild(sub);
+
+      // date/time handled inside the left column; no separate date column
 
       // right column: holds status select and the inspection button
       const right = document.createElement('div');
@@ -368,10 +372,9 @@ const Junkai = (()=>{
       right.appendChild(sel);
       right.appendChild(btn);
 
-      // append columns: left column, mid column, date/time column, right column
+      // append columns: left column, mid column, right column
       row.appendChild(left);
       row.appendChild(mid);
-      row.appendChild(dtDiv);
       row.appendChild(right);
       list.appendChild(row);
     }
