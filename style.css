@@ -28,8 +28,9 @@ html,body{margin:0;padding:0;background:#f6f7fb;color:var(--fg);font-family:-app
 
 /* city rows */
 .list{display:flex;flex-direction:column;gap:10px}
-.row{display:grid;grid-template-columns:56px 1fr 150px;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px}
-.row .idx{font-weight:800;color:#334155;justify-self:center}
+.row{display:grid;grid-template-columns:auto 1fr 150px;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px}
+.row .idx{font-weight:800;color:#334155;/* alignment handled by flex in leftcol */}
+.row .leftcol{display:flex;align-items:center;gap:6px;}
 .row .mid{display:flex;flex-direction:column;gap:4px;min-width:0}
 /* In city pages, ensure station name wraps naturally but no more than two lines */
 .row .title{

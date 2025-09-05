@@ -266,64 +266,70 @@ const Junkai = (()=>{
       const row = document.createElement('div');
       row.className = `row ${rowBg(rec)}`;
 
+      // left column: index number and checkbox side by side
       const left = document.createElement('div');
-      left.className='idx';
-      left.textContent = rec.ui_index || '';
-
-      const mid = document.createElement('div');
-      mid.className='mid';
-
-      const title = document.createElement('div');
-      title.className='title';
-      title.textContent = rec.station || '';
-
-      const sub = document.createElement('div');
-      sub.className='sub';
-      sub.textContent = `${rec.model||''}　${rec.number||''}`;
-
-      mid.appendChild(title); mid.appendChild(sub);
-
-      const right = document.createElement('div');
-      right.className='rightcol';
-
-      const sel = document.createElement('select');
-      sel.className='state';
-      [['normal','通常'],['stop','停止'],['skip','不要']].forEach(([v,lab])=>{ 
-        const o=document.createElement('option'); o.value=v; o.textContent=lab; if(rec.status===v) o.selected=true; sel.appendChild(o);
-      });
-      sel.addEventListener('change', ()=>{ rec.status = sel.value; persistCityRec(city, rec); row.className = `row ${rowBg(rec)}`; });
-
-      const btn = document.createElement('button');
-      btn.className='btn tiny'; btn.textContent='点検';
-      btn.addEventListener('click', ()=>{
-        const q = new URLSearchParams({ station:rec.station||'', model:rec.model||'', number:rec.number||'' });
-        location.href = `${TIRE_APP_URL}?${q.toString()}`;
-      });
-
+      left.className = 'leftcol';
+      // index element
+      const idxDiv = document.createElement('div');
+      idxDiv.className = 'idx';
+      idxDiv.textContent = rec.ui_index || '';
+      left.appendChild(idxDiv);
+      // checkbox
       const chk = document.createElement('input');
-      chk.type='checkbox'; chk.checked=!!rec.checked;
-      chk.addEventListener('change', ()=>{
-        if(!confirm(chk.checked? 'チェックを付けます。よろしいですか？' : 'チェックを外します。よろしいですか？')){ chk.checked=!chk.checked; return; }
+      chk.type = 'checkbox';
+      chk.checked = !!rec.checked;
+      chk.addEventListener('change', () => {
+        if (!confirm(chk.checked ? 'チェックを付けます。よろしいですか？' : 'チェックを外します。よろしいですか？')) {
+          chk.checked = !chk.checked;
+          return;
+        }
         rec.checked = chk.checked;
-        if(rec.checked) rec.last_inspected_at = new Date().toISOString();
+        if (rec.checked) rec.last_inspected_at = new Date().toISOString();
         persistCityRec(city, rec);
         row.className = `row ${rowBg(rec)}`;
       });
+      left.appendChild(chk);
 
-      // first line row with checkbox and title
-      const firstLine = document.createElement('div');
-      firstLine.style.display = 'flex';
-      firstLine.style.alignItems = 'center';
-      firstLine.style.gap = '10px';
-      firstLine.appendChild(chk);
-      firstLine.appendChild(title);
-      mid.innerHTML = '';
-      mid.appendChild(firstLine);
+      // middle column: station title and sub-line
+      const mid = document.createElement('div');
+      mid.className = 'mid';
+      const title = document.createElement('div');
+      title.className = 'title';
+      title.textContent = rec.station || '';
+      const sub = document.createElement('div');
+      sub.className = 'sub';
+      sub.textContent = `${rec.model || ''}　${rec.number || ''}`;
+      mid.appendChild(title);
       mid.appendChild(sub);
 
+      // right column: status select and button
+      const right = document.createElement('div');
+      right.className = 'rightcol';
+      const sel = document.createElement('select');
+      sel.className = 'state';
+      [['normal', '通常'], ['stop', '停止'], ['skip', '不要']].forEach(([v, lab]) => {
+        const o = document.createElement('option');
+        o.value = v;
+        o.textContent = lab;
+        if (rec.status === v) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.addEventListener('change', () => {
+        rec.status = sel.value;
+        persistCityRec(city, rec);
+        row.className = `row ${rowBg(rec)}`;
+      });
+      const btn = document.createElement('button');
+      btn.className = 'btn tiny';
+      btn.textContent = '点検';
+      btn.addEventListener('click', () => {
+        const q = new URLSearchParams({ station: rec.station || '', model: rec.model || '', number: rec.number || '' });
+        location.href = `${TIRE_APP_URL}?${q.toString()}`;
+      });
       right.appendChild(sel);
       right.appendChild(btn);
 
+      // append columns
       row.appendChild(left);
       row.appendChild(mid);
       row.appendChild(right);
