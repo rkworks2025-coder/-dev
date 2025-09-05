@@ -367,7 +367,14 @@ const Junkai = (()=>{
       btn.className = 'btn tiny';
       btn.textContent = '点検';
       btn.addEventListener('click', () => {
-        const q = new URLSearchParams({ station: rec.station || '', model: rec.model || '', number: rec.number || '' });
+        // Build query parameters for the tire app.  The tire app expects
+        // `station`, `model` and `plate_full` as query keys.  See the
+        // tire-app's index.html: it reads `plate_full` for the full plate number.
+        const q = new URLSearchParams({
+          station: rec.station || '',
+          model: rec.model || '',
+          plate_full: rec.number || '',
+        });
         location.href = `${TIRE_APP_URL}?${q.toString()}`;
       });
       // append controls to right column
