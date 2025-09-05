@@ -1,28 +1,123 @@
-
 <!doctype html>
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>大和市</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>大和市｜巡回</title>
+  <link rel="stylesheet" href="style.css?v=20250901" />
 </head>
 <body>
-  <div class="ver">v5n</div>
   <header class="appbar">
-    <a class="btn" href="index.html">戻る</a>
-    <div class="title" style="margin:0 auto;">大和市</div>
-    <div style="width:70px"></div>
+    <div class="title">大和市</div>
+    <div class="btns">
+      <a class="btn" href="index.html">戻る</a>
+    </div>
   </header>
 
   <main class="wrap">
     <p id="hint" class="hint">同期後に表示されます。</p>
-    <div id="list" class="list"></div>
+    <div id="list"></div>
   </main>
 
-  <script src="app.js"></script>
   <script>
-    Junkai.initCity("大和市");
+  const CITY = "大和市";
+  const LS_KEY = (city)=>`junkai:city:${{city}}`;
+  const SEVEN = 7*24*60*60*1000;
+
+  function readCity(city){
+    try{const s=localStorage.getItem(LS_KEY(city));if(!s)return[];const a=JSON.parse(s);return Array.isArray(a)?a:[]}catch(_){return[]}
+  }
+  function within7d(lastAt){
+    if(!lastAt) return false;
+    const t = Date.parse(lastAt);
+    if(!Number.isFinite(t)) return false;
+    return (Date.now()-t) < SEVEN;
+  }
+  function rowClass(rec){
+    if (within7d(rec.last_inspected_at)) return "bg-blue";
+    if (rec.status==="stop") return "bg-gray";
+    if (rec.status==="skip") return "bg-yellow";
+    if (rec.checked || rec.status==="done") return "bg-pink";
+    return "bg-green";
+  }
+  function text2(el,txt){ if(el) el.textContent = txt; }
+
+  function render(){
+    const data = readCity(CITY);
+    const wrap = document.getElementById("list");
+    const hint = document.getElementById("hint");
+    wrap.innerHTML="";
+    if(data.length===0){ hint.textContent="まだ同期されていません（インデックスの同期を押してください）"; return; }
+    hint.textContent = `件数：${data.length}`;
+
+    // index の値で昇順（0 の場合は後方）
+    data.sort((a,b)=>{
+      const ai = (a.index>0?a.index:1e9), bi=(b.index>0?b.index:1e9);
+      return ai-bi || (a.station||'').localeCompare(b.station||'','ja');
+    });
+
+    for(const rec of data){
+      const div=document.createElement("div");
+      div.className=`row ${rowClass(rec)}`;
+
+      const idx=document.createElement("div");
+      idx.className="idx"; idx.textContent= String(rec.index>0?rec.index:"-");
+
+      const chk=document.createElement("input");
+      chk.type="checkbox"; chk.className="chk"; chk.checked=!!rec.checked;
+      chk.addEventListener("change",()=>{
+        rec.checked = chk.checked;
+        saveLocal(rec);
+        div.className=`row ${rowClass(rec)}`;
+      });
+
+      const fields=document.createElement("div"); fields.className="fields";
+      const l1=document.createElement("div"); l1.className="line1"; l1.textContent = rec.station || "(無名)";
+      const l2=document.createElement("div"); l2.className="line2"; l2.textContent = `${{rec.model || ""}}　${{rec.number || ""}}`;
+      fields.appendChild(l1); fields.appendChild(l2);
+
+      const right=document.createElement("right");
+
+      const btn=document.createElement("button");
+      btn.className="btn-mini"; btn.textContent="点検";
+      btn.addEventListener("click", ()=>{
+        const q = new URLSearchParams({station:rec.station||"", model:rec.model||"", number:rec.number||""});
+        console.log("open tire app with:", q.toString());
+        alert("タイヤアプリURL未設定です。後でリンク先を設定してください。");
+      });
+
+      const sel=document.createElement("select");
+      sel.className="state-select";
+      for (const [val, label] of [["normal","通常"],["stop","停止"],["skip","不要"],["done","済"]]){
+        const op=document.createElement("option");
+        op.value=val; op.textContent=label; if(rec.status===val) op.selected=true; sel.appendChild(op);
+      }
+      sel.addEventListener("change", ()=>{
+        rec.status = sel.value;
+        saveLocal(rec);
+        div.className=`row ${rowClass(rec)}`;
+      });
+
+      right.appendChild(btn);
+      right.appendChild(sel);
+
+      div.appendChild(idx);
+      div.appendChild(chk);
+      div.appendChild(fields);
+      div.appendChild(right);
+
+      wrap.appendChild(div);
+    }
+  }
+
+  function saveLocal(rec){
+    const arr = readCity(CITY);
+    const i = arr.findIndex(x=> (x.number||"") === (rec.number||""));
+    if (i>=0) arr[i]=rec; else arr.push(rec);
+    localStorage.setItem(LS_KEY(CITY), JSON.stringify(arr));
+  }
+
+  render();
   </script>
 </body>
 </html>
