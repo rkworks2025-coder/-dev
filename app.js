@@ -236,6 +236,37 @@ const Junkai = (()=>{
         status('同期失敗：通信または解析エラー（既存データは保持）');
       }finally{ setTimeout(()=>showProgress(false), 350); }
     });
+
+    // Attach handler for pushing InspectionLog to the sheet (if button exists)
+    const pushBtn = document.getElementById('pushLogBtn');
+    if (pushBtn) {
+      pushBtn.addEventListener('click', async () => {
+        try {
+          // collect all records from all cities
+          const all = [];
+          for (const c of CITIES) {
+            const arrCity = readCity(c);
+            if (Array.isArray(arrCity)) all.push(...arrCity);
+          }
+          status('シート更新中…');
+          const json = JSON.stringify(all);
+          const url = `${GAS_URL}?action=push&data=${encodeURIComponent(json)}`;
+          const res = await fetch(url, { method:'GET' });
+          let result = null;
+          try {
+            result = await res.json();
+          } catch(_){ result = null; }
+          if (result && result.ok) {
+            status('シート更新完了！');
+          } else {
+            status('更新に失敗しました');
+          }
+        } catch(err){
+          console.error('push error', err);
+          status('更新エラー');
+        }
+      });
+    }
   }
 
   // ===== City page =====
