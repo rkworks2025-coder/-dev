@@ -349,9 +349,24 @@ const Junkai = (()=>{
   }
 
   function persistCityRec(city, rec){
+    // Update the record in localStorage by matching on the UI index when available.
+    // Using ui_index ensures we update the exact row instead of matching solely on number,
+    // which can be blank or duplicated across entries. Fallback to number for older records.
     const arr = readCity(city);
-    const i = arr.findIndex(x=> (x.number||'')===(rec.number||''));
-    if(i>=0) arr[i]=rec; else arr.push(rec);
+    // find by ui_index if defined
+    let i = -1;
+    if(rec.ui_index){
+      i = arr.findIndex(x => (x.ui_index || '') === (rec.ui_index || ''));
+    }
+    // fallback to matching by number if no ui_index match
+    if(i < 0){
+      i = arr.findIndex(x => (x.number || '') === (rec.number || ''));
+    }
+    if(i >= 0){
+      arr[i] = rec;
+    } else {
+      arr.push(rec);
+    }
     saveCity(city, arr);
   }
 
