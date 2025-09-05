@@ -304,7 +304,7 @@ const Junkai = (()=>{
       });
       left.appendChild(chk);
 
-      // middle column: station title, date/time and sub-line
+      // middle column: station title and sub-line (date/time is rendered in the right column)
       const mid = document.createElement('div');
       mid.className = 'mid';
       const title = document.createElement('div');
@@ -313,7 +313,11 @@ const Junkai = (()=>{
       const sub = document.createElement('div');
       sub.className = 'sub';
       sub.textContent = `${rec.model || ''}　${rec.number || ''}`;
-      // create date/time element next to title
+      // append title and sub into mid (stacked)
+      mid.appendChild(title);
+      mid.appendChild(sub);
+
+      // date/time element; will be appended into right column
       const dtDiv = document.createElement('div');
       dtDiv.className = 'datetime';
       function updateDateTime(){
@@ -333,21 +337,8 @@ const Junkai = (()=>{
         dtDiv.style.display = 'none';
       }
       updateDateTime();
-      // top row with station title and date/time aligned
-      const topRow = document.createElement('div');
-      topRow.className = 'toprow';
-      // flex layout: let station title expand to occupy remaining width
-      topRow.style.display = 'flex';
-      topRow.style.alignItems = 'flex-start';
-      // Allow title to take up remaining space while date/time retains its width
-      title.style.flex = '1';
-      topRow.appendChild(title);
-      topRow.appendChild(dtDiv);
-      // assemble mid: top row and sub-line
-      mid.appendChild(topRow);
-      mid.appendChild(sub);
 
-      // right column: status select and button (and optional date/time)
+      // right column: holds date/time, status select and the inspection button
       const right = document.createElement('div');
       right.className = 'rightcol';
 
@@ -373,7 +364,8 @@ const Junkai = (()=>{
         const q = new URLSearchParams({ station: rec.station || '', model: rec.model || '', number: rec.number || '' });
         location.href = `${TIRE_APP_URL}?${q.toString()}`;
       });
-      // append controls (date/time now handled in mid)
+      // append date/time and controls to right column
+      right.appendChild(dtDiv);
       right.appendChild(sel);
       right.appendChild(btn);
 
