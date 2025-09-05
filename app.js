@@ -304,7 +304,7 @@ const Junkai = (()=>{
       });
       left.appendChild(chk);
 
-      // middle column: station title and sub-line
+      // middle column: station title, date/time and sub-line
       const mid = document.createElement('div');
       mid.className = 'mid';
       const title = document.createElement('div');
@@ -313,14 +313,7 @@ const Junkai = (()=>{
       const sub = document.createElement('div');
       sub.className = 'sub';
       sub.textContent = `${rec.model || ''}　${rec.number || ''}`;
-      mid.appendChild(title);
-      mid.appendChild(sub);
-
-      // right column: status select and button (and optional date/time)
-      const right = document.createElement('div');
-      right.className = 'rightcol';
-
-      // date/time display (two lines: mm/dd and hh:mm)
+      // create date/time element next to title
       const dtDiv = document.createElement('div');
       dtDiv.className = 'datetime';
       function updateDateTime(){
@@ -340,6 +333,22 @@ const Junkai = (()=>{
         dtDiv.style.display = 'none';
       }
       updateDateTime();
+      // top row with station title and date/time aligned
+      const topRow = document.createElement('div');
+      topRow.className = 'toprow';
+      topRow.style.display = 'flex';
+      topRow.style.justifyContent = 'space-between';
+      topRow.style.alignItems = 'flex-start';
+      topRow.appendChild(title);
+      topRow.appendChild(dtDiv);
+      // assemble mid: top row and sub-line
+      mid.appendChild(topRow);
+      mid.appendChild(sub);
+
+      // right column: status select and button (and optional date/time)
+      const right = document.createElement('div');
+      right.className = 'rightcol';
+
 
       const sel = document.createElement('select');
       sel.className = 'state';
@@ -362,8 +371,7 @@ const Junkai = (()=>{
         const q = new URLSearchParams({ station: rec.station || '', model: rec.model || '', number: rec.number || '' });
         location.href = `${TIRE_APP_URL}?${q.toString()}`;
       });
-      // append date/time display before the controls
-      right.appendChild(dtDiv);
+      // append controls (date/time now handled in mid)
       right.appendChild(sel);
       right.appendChild(btn);
 
