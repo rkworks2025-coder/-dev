@@ -70,5 +70,6 @@ html,body{margin:0;padding:0;background:#f6f7fb;color:var(--fg);font-family:-app
   color:#475569;
   line-height:1.2;
   text-align:right;
-  white-space:nowrap;
+  /* allow line breaks so MM/DD and HH:MM display on separate lines */
+  white-space:normal;
 }
