@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>巡回リスト</title>
   <!-- include version query to bust cache -->
-  <link rel="stylesheet" href="style.css?v=8g" />
+  <link rel="stylesheet" href="style.css?v=8h" />
 </head>
 <body>
   <!-- Display current version -->
-  <div class="ver">v8g</div>
+  <div class="ver">v8h</div>
   <header class="appbar">
     <div class="title">巡回リスト</div>
     <div class="btns">
@@ -82,9 +82,13 @@
   </div>
 
   <!-- include version query to bust cache -->
-  <script src="app.js?v=8g"></script>
+  <script src="app.js?v=8h"></script>
   <script>
-    Junkai.initIndex();
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof Junkai !== 'undefined' && Junkai.initIndex) {
+        Junkai.initIndex();
+      }
+    });
   </script>
 </body>
 </html>
