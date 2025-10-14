@@ -6,11 +6,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>巡回リスト</title>
   <!-- include version query to bust cache -->
-  <link rel="stylesheet" href="style.css?v=6u" />
+  <link rel="stylesheet" href="style.css?v=8b" />
 </head>
 <body>
   <!-- Display current version -->
-  <div class="ver">v6u</div>
+  <div class="ver">v8b</div>
   <header class="appbar">
     <div class="title">巡回リスト</div>
     <div class="btns">
@@ -31,6 +31,7 @@
           <span class="chip">停 <span id="yamato-stop">0</span></span>
           <span class="chip">不要 <span id="yamato-skip">0</span></span>
           <span class="chip">総 <span id="yamato-total">0</span></span>
+          <span class="chip">残 <span id="yamato-rem">0</span></span>
         </div>
       </a>
 
@@ -41,6 +42,7 @@
           <span class="chip">停 <span id="ebina-stop">0</span></span>
           <span class="chip">不要 <span id="ebina-skip">0</span></span>
           <span class="chip">総 <span id="ebina-total">0</span></span>
+          <span class="chip">残 <span id="ebina-rem">0</span></span>
         </div>
       </a>
 
@@ -51,8 +53,20 @@
           <span class="chip">停 <span id="chofu-stop">0</span></span>
           <span class="chip">不要 <span id="chofu-skip">0</span></span>
           <span class="chip">総 <span id="chofu-total">0</span></span>
+          <span class="chip">残 <span id="chofu-rem">0</span></span>
         </div>
       </a>
+      <!-- aggregated card for all areas -->
+      <div class="cardlink">
+        <h2>全エリア</h2>
+        <div class="meta">
+          <span class="chip">済 <span id="all-done">0</span></span>
+          <span class="chip">停 <span id="all-stop">0</span></span>
+          <span class="chip">不要 <span id="all-skip">0</span></span>
+          <span class="chip">総 <span id="all-total">0</span></span>
+          <span class="chip">残 <span id="all-rem">0</span></span>
+        </div>
+      </div>
     </section>
 
     <p id="overallHint" class="empty">まだ同期されていません</p>
@@ -66,7 +80,7 @@
   </div>
 
   <!-- include version query to bust cache -->
-  <script src="app.js?v=6u"></script>
+  <script src="app.js?v=8b"></script>
   <script>
     Junkai.initIndex();
   </script>

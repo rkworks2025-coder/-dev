@@ -10,6 +10,7 @@ const Junkai = (()=>{
   const TIMEOUT_MS = 15000;
   const DEBUG_ERRORS = true;
 
+  const USE_LOG_KEY = 'junkai:useLog';
   // ===== utils =====
   const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
 
@@ -25,7 +26,128 @@ const Junkai = (()=>{
   }
 
   function normalize(r){
-    return {
+    
+  /**
+   * Sync records from the InspectionLog sheet. This fetches records from the
+   * InspectionLog tab (via GAS pull) and maps them back into the app's local
+   * data format. It is used after the initial sync from 全体管理.  If any error
+   * occurs, existing data is preserved.
+   */
+  async function syncFromInspectionLog() {
+    try {
+      status('ログ取得中…');
+      showProgress(true, 35);
+      const url = `${GAS_URL}?action=pull&sheet=InspectionLog&_=${Date.now()}`;
+      const json = await fetchJSONWithRetry(url, 2);
+      // accept json.data or json.values
+      let arr = Array.isArray(json?.data) ? json.data : (Array.isArray(json?.values) ? json.values : []);
+      if (!Array.isArray(arr)) arr = [];
+      // fallback: if arr is empty and json itself is an array of arrays
+      if (arr.length === 0 && Array.isArray(json) && Array.isArray(json[0])) {
+        arr = json;
+      }
+      // skip header row if it contains 'city' and 'station'
+      if (arr.length > 0 && Array.isArray(arr[0])) {
+        const first = arr[0].map(x => typeof x === 'string' ? x.toLowerCase() : '');
+        if (first.includes('city') && first.includes('station')) {
+          arr = arr.slice(1);
+        }
+      }
+      const buckets = { "大和市": [], "海老名市": [], "調布市": [] };
+      // helper to convert checked_at (yyyy/MM/dd-HH:mm) to ISO
+      function toISO(s) {
+        if (!s) return '';
+        const parts = s.split('-');
+        if (parts.length !== 2) return '';
+        const datePart = parts[0].replace(/\//g, '-');
+        const timePart = parts[1];
+        // Assume local time zone; create Date and convert to ISO
+        const dt = new Date(`${datePart}T${timePart}:00`);
+        if (!Number.isFinite(dt.getTime())) return '';
+        return dt.toISOString();
+      }
+      for (const row of arr) {
+        if (!Array.isArray(row) || row.length < 7) continue;
+        const city = (row[0] || '').toString();
+        const station = (row[1] || '').toString();
+        const model = (row[2] || '').toString();
+        const number = (row[3] || '').toString();
+        const idxStr = (row[4] || '').toString();
+        const statusEng = (row[5] || '').toString();
+        const checkedAt = (row[6] || '').toString();
+        const rec = {
+          city,
+          station,
+          model,
+          number,
+          status: 'normal',
+          checked: false,
+          index: '',
+          last_inspected_at: '',
+          ui_index: idxStr || '',
+          ui_index_num: 0
+        };
+        // derive ui_index_num from idxStr (e.g. Y1 -> 1)
+        if (idxStr) {
+          const m = idxStr.match(/^(?:[A-Za-z]|[^0-9]*)(\d+)/);
+          if (m) {
+            const num = parseInt(m[1], 10);
+            if (Number.isFinite(num)) rec.ui_index_num = num;
+          }
+        }
+        // map statusEng back to internal fields
+        switch (statusEng) {
+          case 'Checked':
+            rec.checked = true;
+            rec.status = 'normal';
+            rec.last_inspected_at = toISO(checkedAt);
+            break;
+          case 'stopped':
+            rec.status = 'stop';
+            rec.last_inspected_at = '';
+            break;
+          case 'Unnecessary':
+            rec.status = 'skip';
+            rec.last_inspected_at = '';
+            break;
+          case '7 day rule':
+            rec.status = 'normal';
+            rec.checked = false;
+            rec.last_inspected_at = toISO(checkedAt);
+            break;
+          default:
+            // standby or unknown
+            rec.status = 'normal';
+            rec.checked = false;
+            rec.last_inspected_at = '';
+        }
+        if (buckets[city]) buckets[city].push(rec);
+      }
+      // save to localStorage
+      let wrote = 0;
+      for (const city of CITIES) {
+        if (buckets[city] && buckets[city].length > 0) {
+          saveCity(city, buckets[city]);
+          wrote++;
+        }
+      }
+      if (wrote === 0) {
+        status('同期失敗：データが空でした（既存データは保持）');
+        return;
+      }
+      
+        localStorage.setItem(USE_LOG_KEY, '1');
+repaintCounters();
+      showProgress(true, 100);
+      status(`同期完了：大和${buckets['大和市'].length || 0} / 海老名${buckets['海老名市'].length || 0} / 調布${buckets['調布市'].length || 0}`);
+    } catch (err) {
+      console.error('log sync error', err);
+      status('同期失敗：通信または解析エラー（既存データは保持）');
+    } finally {
+      setTimeout(() => showProgress(false), 350);
+    }
+  }
+return {
       city: (r.city||'').trim(),
       station: (r.station||'').trim(),
       model: (r.model||'').trim(),
@@ -93,22 +215,42 @@ const Junkai = (()=>{
 
   function repaintCounters(){
     const map = {
-      "大和市":    {done:'#yamato-done', stop:'#yamato-stop', skip:'#yamato-skip', total:'#yamato-total'},
-      "海老名市":  {done:'#ebina-done',  stop:'#ebina-stop',  skip:'#ebina-skip',  total:'#ebina-total'},
-      "調布市":    {done:'#chofu-done',  stop:'#chofu-stop',  skip:'#chofu-skip',  total:'#chofu-total'},
+      "大和市":    {done:'#yamato-done', stop:'#yamato-stop', skip:'#yamato-skip', total:'#yamato-total', rem:'#yamato-rem'},
+      "海老名市":  {done:'#ebina-done',  stop:'#ebina-stop',  skip:'#ebina-skip',  total:'#ebina-total', rem:'#ebina-rem'},
+      "調布市":    {done:'#chofu-done',  stop:'#chofu-stop',  skip:'#chofu-skip',  total:'#chofu-total', rem:'#chofu-rem'},
     };
-    let overall = 0;
+    let overallTotal = 0, overallDone = 0, overallStop = 0, overallSkip = 0;
     for(const city of CITIES){
       const arr = readCity(city);
       const cnt = countCity(arr);
-      overall += cnt.total;
+      overallTotal += cnt.total;
+      overallDone += cnt.done;
+      overallStop += cnt.stop;
+      overallSkip += cnt.skip;
       const m = map[city];
+      // update metrics for the city
       for(const k of ['done','stop','skip','total']){
         const el = document.querySelector(m[k]); if(el) el.textContent = cnt[k];
       }
+      // update remaining count: total - done - skip
+      const remCount = cnt.total - cnt.done - cnt.skip;
+      const remEl = document.querySelector(m.rem);
+      if(remEl) remEl.textContent = remCount;
     }
+    // update aggregated counts across all areas
+    const allDoneEl  = document.querySelector('#all-done');
+    const allStopEl  = document.querySelector('#all-stop');
+    const allSkipEl  = document.querySelector('#all-skip');
+    const allTotalEl = document.querySelector('#all-total');
+    const allRemEl   = document.querySelector('#all-rem');
+    if(allDoneEl)  allDoneEl.textContent  = overallDone;
+    if(allStopEl)  allStopEl.textContent  = overallStop;
+    if(allSkipEl)  allSkipEl.textContent  = overallSkip;
+    if(allTotalEl) allTotalEl.textContent = overallTotal;
+    if(allRemEl)   allRemEl.textContent   = (overallTotal - overallDone - overallSkip);
+    // update overall hint
     const hint = document.getElementById('overallHint');
-    if(hint) hint.textContent = overall>0 ? `総件数：${overall}` : 'まだ同期されていません';
+    if(hint) hint.textContent = overallTotal>0 ? `総件数：${overallTotal}` : 'まだ同期されていません';
   }
 
   // ====== public init for index ======
@@ -120,6 +262,36 @@ const Junkai = (()=>{
       try{
         showProgress(true, 5);
         status('開始…');
+        // v8a: send local changes to sheet before pulling
+        try {
+          const allRecords = [];
+          for (const c of CITIES) {
+            const arrCity = readCity(c);
+            if (Array.isArray(arrCity)) allRecords.push(...arrCity);
+          }
+          if (allRecords.length > 0) {
+            status('更新内容を送信中…');
+            showProgress(true, 15);
+            const jsonPayload = JSON.stringify(allRecords);
+            const params = new URLSearchParams();
+            params.append('action','push');
+            params.append('data', jsonPayload);
+            const pushRes = await fetch(GAS_URL, {
+              method:'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: params.toString()
+            });
+            let pushResult = null;
+            try { pushResult = await pushRes.json(); } catch(_){ pushResult = null; }
+            if (!pushResult || !pushResult.ok) {
+              if (DEBUG_ERRORS) console.warn('push-before-pull failed', pushResult);
+            }
+            showProgress(true, 30);
+          }
+        } catch(ePush) {
+          if (DEBUG_ERRORS) console.warn('push-before-pull error', ePush);
+        }
+
         const u = `${GAS_URL}?action=pull&_=${Date.now()}`;
         status('GASへ問い合わせ中…');
         showProgress(true, 35);
