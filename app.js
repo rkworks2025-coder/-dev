@@ -124,8 +124,10 @@ const Junkai = (()=>{
             rec.status = 'skip';
             rec.last_inspected_at = '';
             break;
+          case '7days_rule':
           case '7 day rule':
-            rec.status = 'normal';
+            // mark as pending due to 7日ルール: treat as its own status
+            rec.status = '7days_rule';
             rec.checked = false;
             rec.last_inspected_at = toISO(checkedAt);
             break;
@@ -471,10 +473,16 @@ return {
     return (Date.now() - t) < (7*24*60*60*1000);
   }
   function rowBg(rec){
-    if(rec.checked) return 'bg-pink';
-    if(rec.status==='stop') return 'bg-gray';
-    if(rec.status==='skip') return 'bg-yellow';
-    if(within7d(rec.last_inspected_at)) return 'bg-blue';
+    // Checked items get pink regardless of other status
+    if (rec.checked) return 'bg-pink';
+    // Explicit status mappings
+    if (rec.status === 'stop') return 'bg-gray';
+    if (rec.status === 'skip') return 'bg-yellow';
+    // 7日ルール対象は水色
+    if (rec.status === '7days_rule' || rec.status === '7 day rule') return 'bg-blue';
+    // Fallback: highlight items whose last inspection is within 7 days
+    if (within7d(rec.last_inspected_at)) return 'bg-blue';
+    // Default standby (normal) color
     return 'bg-green';
   }
 
