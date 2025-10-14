@@ -163,6 +163,245 @@ repaintCounters();
       setTimeout(() => showProgress(false), 350);
     }
   }
+
+  /**
+   * Pull records from the specified sheet and save them into local storage.
+   * This helper consolidates the common logic for pulling data from either
+   * the 全体管理 sheet or the InspectionLog sheet.  It updates counters
+   * and shows progress/status messages.  When pulling InspectionLog, it
+   * maps the English status values back into the app's internal fields so
+   * that 7days_rule and other statuses are reflected correctly in the UI.
+   *
+   * @param {string} sheet - The sheet name to pull from (e.g. '全体管理' or 'InspectionLog').
+   * @param {string} label - A label used in status messages (e.g. '初期同期' or '同期').
+   */
+  async function pullAndSave(sheet, label) {
+    try {
+      const actionLabel = label || '同期';
+      status(`${actionLabel}中…`);
+      showProgress(true, 5);
+      // Build URL with sheet parameter and cache-busting timestamp
+      const u = `${GAS_URL}?action=pull&sheet=${encodeURIComponent(sheet)}&_=${Date.now()}`;
+      showProgress(true, 15);
+      // Fetch JSON with retry
+      const json = await fetchJSONWithRetry(u, 2);
+      showProgress(true, 35);
+      // The GAS endpoint returns data either under 'data' or 'values'.  If both
+      // are missing but the response is an array of arrays, treat that as the
+      // data.  Otherwise bail out early.
+      let arr = Array.isArray(json?.data) ? json.data : (Array.isArray(json?.values) ? json.values : []);
+      if (!Array.isArray(arr)) arr = [];
+      if (arr.length === 0 && Array.isArray(json) && Array.isArray(json[0])) {
+        arr = json;
+      }
+      // Prepare buckets for each city
+      const buckets = { "大和市": [], "海老名市": [], "調布市": [] };
+      // If pulling the InspectionLog sheet, skip a header row that contains
+      // english column names like 'city' and 'station'.  This matches the
+      // behaviour in syncFromInspectionLog().
+      if (sheet === 'InspectionLog' && arr.length > 0 && Array.isArray(arr[0])) {
+        const firstRow = arr[0].map(x => typeof x === 'string' ? x.toLowerCase() : '');
+        if (firstRow.includes('city') && firstRow.includes('station')) {
+          arr = arr.slice(1);
+        }
+      }
+      // Helper to convert a checked_at value (yyyy/MM/dd-HH:mm or yyyy/MM/dd)
+      // into an ISO string suitable for local storage.  InspectionLog only
+      // stores dates (yyyy/MM/dd) but we support both for completeness.
+      function toISOChecked(s) {
+        if (!s) return '';
+        const str = String(s).trim();
+        const parts = str.split('-');
+        let datePart = '';
+        let timePart = '';
+        if (parts.length >= 2) {
+          // yyyy/MM/dd-HH:mm
+          datePart = parts[0].replace(/\//g, '-');
+          timePart = parts[1].split(' ')[0];
+          const dt = new Date(`${datePart}T${timePart}:00`);
+          if (!Number.isFinite(dt.getTime())) return '';
+          return dt.toISOString();
+        } else {
+          // yyyy/MM/dd
+          datePart = str.replace(/\//g, '-');
+          const dt = new Date(`${datePart}T00:00:00`);
+          if (!Number.isFinite(dt.getTime())) return '';
+          return dt.toISOString();
+        }
+      }
+      // Process each row of the returned array.  Rows from InspectionLog
+      // follow a strict format: [city, station, model, number, index, status, checked_at].
+      // Rows from 全体管理 can vary; use heuristics similar to the original
+      // initIndex() implementation to extract city, station, model, number,
+      // and status.  For InspectionLog, map English status values to the
+      // app's internal fields (checked/status/last_inspected_at).
+      if (sheet === 'InspectionLog') {
+        for (const row of arr) {
+          if (!Array.isArray(row) || row.length < 7) continue;
+          const city = (row[0] || '').toString();
+          const station = (row[1] || '').toString();
+          const model = (row[2] || '').toString();
+          const number = (row[3] || '').toString();
+          const idxStr = (row[4] || '').toString();
+          const statusEng = (row[5] || '').toString();
+          const checkedAt = (row[6] || '').toString();
+          // Build a new record with default values
+          const rec = {
+            city,
+            station,
+            model,
+            number,
+            status: 'normal',
+            checked: false,
+            index: '',
+            last_inspected_at: '',
+            ui_index: idxStr || '',
+            ui_index_num: 0
+          };
+          // Derive ui_index_num from idxStr (e.g. Y1 -> 1)
+          if (idxStr) {
+            const m = idxStr.match(/^(?:[A-Za-z]|[^0-9]*)(\d+)/);
+            if (m) {
+              const num = parseInt(m[1], 10);
+              if (Number.isFinite(num)) rec.ui_index_num = num;
+            }
+          }
+          // Map English status back to internal fields
+          switch (statusEng) {
+            case 'Checked':
+              rec.checked = true;
+              rec.status = 'normal';
+              rec.last_inspected_at = toISOChecked(checkedAt);
+              break;
+            case 'stopped':
+              rec.status = 'stop';
+              rec.last_inspected_at = '';
+              break;
+            case 'Unnecessary':
+              rec.status = 'skip';
+              rec.last_inspected_at = '';
+              break;
+            case '7days_rule':
+            case '7 day rule':
+              rec.status = '7days_rule';
+              rec.checked = false;
+              rec.last_inspected_at = toISOChecked(checkedAt);
+              break;
+            default:
+              // standby or unknown
+              rec.status = 'normal';
+              rec.checked = false;
+              rec.last_inspected_at = '';
+          }
+          if (buckets[city]) buckets[city].push(rec);
+        }
+      } else {
+        // Heuristics for 全体管理 or other sheets: infer columns if header row present
+        // Detect header row with english column names like 'city' and 'station'
+        let headerMap = null;
+        if (arr.length > 0 && Array.isArray(arr[0])) {
+          const firstRow = arr[0];
+          const lower = firstRow.map(x => (typeof x === 'string' ? x.trim().toLowerCase() : ''));
+          if (lower.some(x => x.includes('city')) && lower.some(x => x.includes('station'))) {
+            headerMap = {};
+            for (let i = 0; i < firstRow.length; i++) {
+              const col = lower[i];
+              if (col.includes('city')) headerMap.city = i;
+              else if (col.includes('station')) headerMap.station = i;
+              else if (col.includes('model')) headerMap.model = i;
+              else if (col.includes('plate') || col.includes('number')) headerMap.number = i;
+              else if (col.includes('status')) headerMap.status = i;
+            }
+            arr = arr.slice(1);
+          }
+        }
+        // Iterate rows and build records
+        for (const r of arr) {
+          let rowObj;
+          if (Array.isArray(r)) {
+            if (headerMap) {
+              // Use header mapping to extract fields
+              const city = r[headerMap.city ?? 0] || '';
+              const station = r[headerMap.station ?? 1] || '';
+              const model = r[headerMap.model ?? 2] || '';
+              const number = r[headerMap.number ?? 3] || '';
+              const statusVal = (headerMap.status !== undefined ? (r[headerMap.status] || '') : 'normal');
+              rowObj = { city, station, model, number, status: statusVal || 'normal', checked: false, index: '', last_inspected_at: '' };
+            } else {
+              // Skip rows with 'city' in the second column (header rows)
+              if (r.length >= 2 && typeof r[1] === 'string' && r[1].trim().toLowerCase() === 'city') {
+                continue;
+              }
+              // Detect TS-prefixed rows: treat as TSV export from 全体管理
+              if (r.length >= 6 && typeof r[0] === 'string' && r[0].trim().startsWith('TS')) {
+                const city = r[1] || '';
+                const station = r[3] || '';
+                const model = r[4] || '';
+                const number = r[5] || '';
+                const statusVal = r[6] || 'normal';
+                rowObj = { city, station, model, number, status: statusVal, checked: false, index: '', last_inspected_at: '' };
+              } else {
+                // Fallback heuristics for minimal sheets
+                if (r.length >= 6) {
+                  // assume r[1]=city, r[3]=station, r[4]=model, r[5]=plate
+                  const city = r[1] || r[0] || '';
+                  const station = r[3] || r[1] || '';
+                  const model = r[4] || r[2] || '';
+                  const number = r[5] || r[3] || '';
+                  const statusVal = r[6] || 'normal';
+                  rowObj = { city, station, model, number, status: statusVal, checked: false, index: '', last_inspected_at: '' };
+                } else {
+                  // simple case: 0=city,1=station,2=model,3=number,4=status
+                  const city = r[0] || '';
+                  const station = r[1] || '';
+                  const model = r[2] || '';
+                  const number = r[3] || '';
+                  const statusVal = r[4] || 'normal';
+                  rowObj = { city, station, model, number, status: statusVal, checked: false, index: '', last_inspected_at: '' };
+                }
+              }
+            }
+          } else if (r && typeof r === 'object') {
+            rowObj = r;
+          } else {
+            continue;
+          }
+          const cityName = (rowObj.city || '').trim();
+          if (!buckets[cityName]) continue;
+          // Normalize fields: trim strings and set defaults
+          const rec = normalize(rowObj);
+          // For initial sync, never mark as checked and clear last_inspected_at
+          rec.checked = false;
+          rec.last_inspected_at = '';
+          // Save into corresponding bucket
+          buckets[cityName].push(rec);
+        }
+      }
+      // Save buckets into local storage, applying UI indices for each city
+      let wrote = 0;
+      for (const city of CITIES) {
+        if (buckets[city].length > 0) {
+          applyUIIndex(city, buckets[city]);
+          saveCity(city, buckets[city]);
+          wrote++;
+        }
+      }
+      if (wrote === 0) {
+        status(`${actionLabel}失敗：データが空でした（既存データは保持）`);
+        showProgress(false);
+        return;
+      }
+      // After pulling, update counters and set appropriate flags
+      repaintCounters();
+      showProgress(true, 100);
+      status(`${actionLabel}完了：大和${buckets['大和市'].length || 0} / 海老名${buckets['海老名市'].length || 0} / 調布${buckets['調布市'].length || 0}`);
+    } catch (e) {
+      console.error(`${label || '同期'} error`, e);
+      status(`${label || '同期'}失敗：通信または解析エラー（既存データは保持）`);
+    } finally {
+      setTimeout(() => showProgress(false), 350);
+    }
+  }
 return {
       city: (r.city||'').trim(),
       station: (r.station||'').trim(),
@@ -271,177 +510,43 @@ return {
 
   // ====== public init for index ======
   async function initIndex(){
+    // Repaint counters on load
     repaintCounters();
-    const btn = document.getElementById('syncBtn');
-    if(!btn) return;
-    btn.addEventListener('click', async()=>{
-      try{
-        showProgress(true, 5);
-        status('開始…');
-        // v8a: send local changes to sheet before pulling
-        try {
-          const allRecords = [];
-          for (const c of CITIES) {
-            const arrCity = readCity(c);
-            if (Array.isArray(arrCity)) allRecords.push(...arrCity);
-          }
-          if (allRecords.length > 0) {
-            status('更新内容を送信中…');
-            showProgress(true, 15);
-            const jsonPayload = JSON.stringify(allRecords);
-            const params = new URLSearchParams();
-            params.append('action','push');
-            params.append('data', jsonPayload);
-            const pushRes = await fetch(GAS_URL, {
-              method:'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: params.toString()
-            });
-            let pushResult = null;
-            try { pushResult = await pushRes.json(); } catch(_){ pushResult = null; }
-            if (!pushResult || !pushResult.ok) {
-              if (DEBUG_ERRORS) console.warn('push-before-pull failed', pushResult);
-            }
-            showProgress(true, 30);
-          }
-        } catch(ePush) {
-          if (DEBUG_ERRORS) console.warn('push-before-pull error', ePush);
+    // Set up initial sync button (全体管理) with confirmation dialog
+    const initBtn = document.getElementById('initSyncBtn');
+    if (initBtn) {
+      initBtn.addEventListener('click', async () => {
+        // Always confirm before overwriting local data
+        if (!confirm('よろしいですか？')) {
+          return;
         }
-
-        const u = `${GAS_URL}?action=pull&_=${Date.now()}`;
-        status('GASへ問い合わせ中…');
-        showProgress(true, 35);
-        const json = await fetchJSONWithRetry(u, 2);
-        showProgress(true, 55);
-        // accept json.data or json.values as array; do not require json.ok===true to support more GAS deployments
-        if(!json || (!Array.isArray(json.data) && !Array.isArray(json.values))) throw new Error('bad-shape');
-
-        // prepare buckets for each supported city
-        const buckets = { "大和市":[], "海老名市":[], "調布市":[] };
-        // some GAS deployments return data under 'data', others under 'values'
-        let arr = Array.isArray(json.data) ? json.data : (Array.isArray(json.values) ? json.values : []);
-        // if there is no array, bail out
-        if(!Array.isArray(arr)) arr = [];
-        // fallback: if arr is empty and json itself is an array of arrays (root-level list)
-        if(arr.length === 0 && Array.isArray(json) && Array.isArray(json[0])){
-          arr = json;
-        }
-
-        // detect header row dynamically (e.g. ['TSエリア','city','所在地','station','model','plate',...])
-        let headerMap = null;
-        if(arr.length > 0 && Array.isArray(arr[0])){
-          const firstRow = arr[0];
-          // check if the first row contains english column names like 'city' or 'station'
-          const lower = firstRow.map(x => (typeof x === 'string' ? x.trim().toLowerCase() : ''));
-          if(lower.some(x => x.includes('city')) && lower.some(x => x.includes('station'))){
-            headerMap = {};
-            for(let i=0;i<firstRow.length;i++){
-              const col = lower[i];
-              if(col.includes('city')) headerMap.city = i;
-              else if(col.includes('station')) headerMap.station = i;
-              else if(col.includes('model')) headerMap.model = i;
-              else if(col.includes('plate') || col.includes('number')) headerMap.number = i;
-              else if(col.includes('status')) headerMap.status = i;
-            }
-            // remove header row from array
-            arr = arr.slice(1);
-          }
-        }
-
-        for(const r of arr){
-          let rowObj;
-          if(Array.isArray(r)){
-            if(headerMap){
-              // when headerMap is detected, use it to map columns
-              const city = r[headerMap.city ?? 0] || '';
-              const station = r[headerMap.station ?? 1] || '';
-              const model = r[headerMap.model ?? 2] || '';
-              const number = r[headerMap.number ?? 3] || '';
-              const status = (headerMap.status !== undefined ? (r[headerMap.status] || '') : 'normal');
-              rowObj = { city, station, model, number, status: status || 'normal', checked:false, index:'', last_inspected_at:'' };
-            }else{
-              // skip header rows that explicitly contain 'city' in the second column
-              if(r.length >= 2 && typeof r[1] === 'string' && r[1].trim().toLowerCase() === 'city'){
-                continue;
-              }
-              // detect TS-prefixed rows: r[0] starts with 'TS' and r has at least 6 columns
-              if(r.length >= 6 && typeof r[0] === 'string' && r[0].trim().startsWith('TS')){
-                const city = r[1] || '';
-                const station = r[3] || '';
-                const model = r[4] || '';
-                const number = r[5] || '';
-                const status = r[6] || 'normal';
-                rowObj = { city, station, model, number, status, checked:false, index:'', last_inspected_at:'' };
-              }else{
-                // fallback heuristics
-                if(r.length >= 6){
-                  // assume r[1]=city, r[3]=station, r[4]=model, r[5]=plate
-                  const city = r[1] || r[0] || '';
-                  const station = r[3] || r[1] || '';
-                  const model = r[4] || r[2] || '';
-                  const number = r[5] || r[3] || '';
-                  const status = r[6] || 'normal';
-                  rowObj = { city, station, model, number, status, checked:false, index:'', last_inspected_at:'' };
-                }else{
-                  // simple case: 0=city,1=station,2=model,3=number,4=status
-                  const city = r[0] || '';
-                  const station = r[1] || '';
-                  const model = r[2] || '';
-                  const number = r[3] || '';
-                  const status = r[4] || 'normal';
-                  rowObj = { city, station, model, number, status, checked:false, index:'', last_inspected_at:'' };
-                }
-              }
-            }
-          }else if(r && typeof r === 'object'){
-            rowObj = r;
-          }else{
-            continue;
-          }
-          const cityName = (rowObj.city || '').trim();
-          if(!buckets[cityName]) continue;
-          const rec = normalize(rowObj);
-          buckets[cityName].push(rec);
-        }
-
-        // 成功時のみ保存（空配列なら上書きしない）
-        let wrote = 0;
-        for(const city of CITIES){
-          if(buckets[city].length>0){
-            applyUIIndex(city, buckets[city]);
-            saveCity(city, buckets[city]);
-            wrote++;
-          }
-        }
-
-        if(wrote===0){ status('同期失敗：データが空でした（既存データは保持）'); showProgress(false); return; }
-
-        repaintCounters();
-        showProgress(true, 100);
-        status(`同期完了：大和${buckets['大和市'].length||0} / 海老名${buckets['海老名市'].length||0} / 調布${buckets['調布市'].length||0}`);
-      }catch(e){
-        console.error('sync error', e);
-        status('同期失敗：通信または解析エラー（既存データは保持）');
-      }finally{ setTimeout(()=>showProgress(false), 350); }
-    });
-
-    // Attach handler for pushing InspectionLog to the sheet (if button exists)
+        await pullAndSave('全体管理', '初期同期');
+      });
+    }
+    // Set up regular sync button (InspectionLog) – pull only, no push
+    const syncBtn = document.getElementById('syncBtn');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', async () => {
+        await pullAndSave('InspectionLog', '同期');
+      });
+    }
+    // Set up data send button – push local changes to InspectionLog only
     const pushBtn = document.getElementById('pushLogBtn');
     if (pushBtn) {
       pushBtn.addEventListener('click', async () => {
         try {
-          // collect all records from all cities
+          // Collect all records from all cities
           const all = [];
           for (const c of CITIES) {
             const arrCity = readCity(c);
             if (Array.isArray(arrCity)) all.push(...arrCity);
           }
-          status('シート更新中…');
-          const json = JSON.stringify(all);
-          // prepare POST body. Send as URL‑encoded to avoid URL length limits
+          status('データ送信中…');
+          showProgress(true, 15);
+          const jsonPayload = JSON.stringify(all);
           const params = new URLSearchParams();
           params.append('action', 'push');
-          params.append('data', json);
+          params.append('data', jsonPayload);
           const url = `${GAS_URL}`;
           const res = await fetch(url, {
             method: 'POST',
@@ -451,15 +556,17 @@ return {
           let result = null;
           try {
             result = await res.json();
-          } catch(_){ result = null; }
+          } catch(_) { result = null; }
           if (result && result.ok) {
-            status('シート更新完了！');
+            status('データ送信完了！');
           } else {
             status('更新に失敗しました');
           }
-        } catch(err){
+        } catch(err) {
           console.error('push error', err);
           status('更新エラー');
+        } finally {
+          setTimeout(() => showProgress(false), 350);
         }
       });
     }

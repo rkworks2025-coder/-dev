@@ -5,17 +5,20 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>巡回リスト</title>
   <!-- include version query to bust cache -->
-  <link rel="stylesheet" href="style.css?v=8e" />
+  <link rel="stylesheet" href="style.css?v=8g" />
 </head>
 <body>
   <!-- Display current version -->
-  <div class="ver">v8e</div>
+  <div class="ver">v8g</div>
   <header class="appbar">
     <div class="title">巡回リスト</div>
     <div class="btns">
+      <!-- Button for initial sync from 全体管理 -->
+      <button id="initSyncBtn" class="btn primary">初期同期</button>
+      <!-- Button for regular sync (pull from InspectionLog) -->
       <button id="syncBtn" class="btn primary">同期</button>
-      <!-- Button to push logs to InspectionLog sheet -->
-      <button id="pushLogBtn" class="btn primary">ログ送信</button>
+      <!-- Button to push local changes to InspectionLog -->
+      <button id="pushLogBtn" class="btn primary">データ送信</button>
     </div>
   </header>
 
@@ -79,7 +82,7 @@
   </div>
 
   <!-- include version query to bust cache -->
-  <script src="app.js?v=8e"></script>
+  <script src="app.js?v=8g"></script>
   <script>
     Junkai.initIndex();
   </script>
