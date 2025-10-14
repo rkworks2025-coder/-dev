@@ -54,17 +54,31 @@ const Junkai = (()=>{
         }
       }
       const buckets = { "大和市": [], "海老名市": [], "調布市": [] };
-      // helper to convert checked_at (yyyy/MM/dd-HH:mm) to ISO
+      // helper to convert checked_at (either yyyy/MM/dd-HH:mm or yyyy/MM/dd) to ISO
       function toISO(s) {
         if (!s) return '';
-        const parts = s.split('-');
-        if (parts.length !== 2) return '';
-        const datePart = parts[0].replace(/\//g, '-');
-        const timePart = parts[1];
-        // Assume local time zone; create Date and convert to ISO
-        const dt = new Date(`${datePart}T${timePart}:00`);
-        if (!Number.isFinite(dt.getTime())) return '';
-        return dt.toISOString();
+        // Trim whitespace and ensure string
+        const str = String(s).trim();
+        // Split on '-' to see if there is a time part
+        const parts = str.split('-');
+        let datePart = '';
+        let timePart = '';
+        if (parts.length >= 2) {
+          // Format like yyyy/MM/dd-HH:mm
+          datePart = parts[0].replace(/\//g, '-');
+          // Use only the first time component (HH:mm) and ignore others
+          timePart = parts[1].split(' ')[0];
+          // Build local date string; default seconds to 00
+          const dt = new Date(`${datePart}T${timePart}:00`);
+          if (!Number.isFinite(dt.getTime())) return '';
+          return dt.toISOString();
+        } else {
+          // Format like yyyy/MM/dd (date only)
+          datePart = str.replace(/\//g, '-');
+          const dt = new Date(`${datePart}T00:00:00`);
+          if (!Number.isFinite(dt.getTime())) return '';
+          return dt.toISOString();
+        }
       }
       for (const row of arr) {
         if (!Array.isArray(row) || row.length < 7) continue;
@@ -499,23 +513,57 @@ return {
       dtDiv.className = 'datetime';
       // helper to update the date/time display
       function updateDateTime(){
-        if(rec.last_inspected_at){
+        if (rec.last_inspected_at) {
           const d = new Date(rec.last_inspected_at);
-          if(Number.isFinite(d.getTime())){
-            const mm = String(d.getMonth()+1).padStart(2,'0');
-            const dd = String(d.getDate()).padStart(2,'0');
-            const hh = String(d.getHours()).padStart(2,'0');
-            const mi = String(d.getMinutes()).padStart(2,'0');
-            dtDiv.innerHTML = `${mm}/${dd}<br>${hh}:${mi}`;
+          if (Number.isFinite(d.getTime())) {
+            // Show year on first line and month/day on second line
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            dtDiv.innerHTML = `${yyyy}<br>${mm}/${dd}`;
             dtDiv.style.display = '';
             return;
           }
         }
+        // Hide if no valid date
         dtDiv.innerHTML = '';
         dtDiv.style.display = 'none';
       }
       // initialize date/time display
       updateDateTime();
+
+      // enable editing the date on tap
+      dtDiv.addEventListener('click', () => {
+        // create a temporary date picker
+        const input = document.createElement('input');
+        input.type = 'date';
+        // set initial value if available
+        if (rec.last_inspected_at) {
+          const d0 = new Date(rec.last_inspected_at);
+          if (Number.isFinite(d0.getTime())) {
+            input.value = d0.toISOString().slice(0, 10);
+          }
+        }
+        dtDiv.appendChild(input);
+        // show the date picker
+        if (typeof input.showPicker === 'function') {
+          input.showPicker();
+        } else {
+          input.focus();
+        }
+        input.addEventListener('change', () => {
+          const sel = input.value; // yyyy-mm-dd
+          dtDiv.removeChild(input);
+          if (!sel) return;
+          if (!confirm('よろしいですか？')) return;
+          const iso = new Date(sel).toISOString();
+          rec.last_inspected_at = iso;
+          persistCityRec(city, rec);
+          updateDateTime();
+          row.className = `row ${rowBg(rec)}`;
+        }, { once: true });
+      });
+
       // assemble left column
       left.appendChild(topLeft);
       left.appendChild(dtDiv);
