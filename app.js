@@ -365,18 +365,54 @@ const Junkai = (()=>{
         await pullAndSave('全体管理', '初期同期');
       });
     }
-    // Sync button: pull InspectionLog
+    // Sync button: push local changes to InspectionLog then pull updated data
     const syncBtn = document.getElementById('syncBtn');
     if(syncBtn){
       syncBtn.addEventListener('click', async ()=>{
+        // Step 1: push local changes
+        await (async () => {
+          status('データ送信中…');
+          showProgress(true, 15);
+          try {
+            // Gather all records across cities
+            const all = [];
+            for(const c of CITIES){
+              const arrCity = readCity(c);
+              if(Array.isArray(arrCity)) all.push(...arrCity);
+            }
+            const params = new URLSearchParams();
+            params.append('action','push');
+            params.append('data', JSON.stringify(all));
+            const res = await fetch(GAS_URL, {
+              method:'POST',
+              headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
+              body: params.toString()
+            });
+            let result = null;
+            try { result = await res.json(); } catch(_){ result = null; }
+            if(result && result.ok){
+              // proceed to pull next
+              status('送信成功、同期中…');
+              showProgress(true, 35);
+            } else {
+              status('送信失敗…');
+              // continue to pull anyway to refresh statuses
+              showProgress(true, 35);
+            }
+          } catch(err){
+            console.error('push error', err);
+            status('送信エラー');
+            // continue to pull anyway
+          }
+        })();
+        // Step 2: pull updated InspectionLog data
         await pullAndSave('InspectionLog', '同期');
       });
     }
-    // Data send button: push local changes to InspectionLog
+    // Data send button: push local changes to InspectionLog only (manual)
     const pushBtn = document.getElementById('pushLogBtn');
     if(pushBtn){
       pushBtn.addEventListener('click', async ()=>{
-        // Show initial status and progress
         status('データ送信中…');
         showProgress(true, 15);
         try{
