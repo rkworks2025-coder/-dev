@@ -357,11 +357,19 @@ const Junkai = (()=>{
    */
   async function initIndex(){
     repaintCounters();
-    // Initial sync button: confirm then pull 全体管理
+    // Initial sync button: reset local storage then pull 全体管理
     const initBtn = document.getElementById('initSyncBtn');
     if(initBtn){
       initBtn.addEventListener('click', async ()=>{
         if(!confirm('よろしいですか？')) return;
+        // 事前にローカル保存をリセットし、カウンタを0に
+        status('リセット中…');
+        showProgress(true, 10);
+        for(const c of CITIES){
+          localStorage.removeItem(LS_KEY(c));
+        }
+        repaintCounters();
+        // 続いて全体管理からデータを取得して保存
         await pullAndSave('全体管理', '初期同期');
       });
     }
