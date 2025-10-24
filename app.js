@@ -194,7 +194,19 @@ const Junkai = (()=>{
         if(firstRow.includes('city') && firstRow.includes('station')) arr = arr.slice(1);
       }
       // Helper to convert yyyy/MM/dd or yyyy/MM/dd-HH:mm to ISO string
-      function toISOChecked(s){
+      
+      // --- v8l UTC fix: format Date in JST as 'yyyy/MM/dd HH:mm:ss'
+      function toJSTString(d){
+        const pad = n => String(n).padStart(2,'0');
+        const yyyy = d.getFullYear();
+        const mm = pad(d.getMonth()+1);
+        const dd = pad(d.getDate());
+        const hh = pad(d.getHours());
+        const mi = pad(d.getMinutes());
+        const ss = pad(d.getSeconds());
+        return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
+      }
+    function toISOChecked(s){
         if(!s) return '';
         const str = String(s).trim();
         const parts = str.split('-');
@@ -203,11 +215,11 @@ const Junkai = (()=>{
           datePart = parts[0].replace(/\//g,'-');
           timePart = parts[1].split(' ')[0];
           const dt = new Date(`${datePart}T${timePart}:00`);
-          return Number.isFinite(dt.getTime())? dt.toISOString() : '';
+          return Number.isFinite(dt.getTime())? toJSTString(dt) : '';
         } else {
           datePart = str.replace(/\//g,'-');
           const dt = new Date(`${datePart}T00:00:00`);
-          return Number.isFinite(dt.getTime())? dt.toISOString() : '';
+          return Number.isFinite(dt.getTime())? toJSTString(dt) : '';
         }
       }
       // Prepare buckets per city
@@ -554,7 +566,7 @@ const Junkai = (()=>{
           chk.checked = !chk.checked;
           return;
         }
-        const nowISO = new Date().toISOString();
+        const nowISO = toJSTString(new Date());
         rec.checked = chk.checked;
         if(chk.checked){ rec.last_inspected_at = nowISO; } else { rec.last_inspected_at = ''; }
         updateDateTime();
