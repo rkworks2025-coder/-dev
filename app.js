@@ -1,3 +1,21 @@
+
+// === v8o JST helpers (force Asia/Tokyo, date-only) ===
+function fmtYmdJST(d){
+  try{
+    const parts = new Intl.DateTimeFormat('ja-JP', { timeZone:'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(d);
+    const map = Object.fromEntries(parts.map(p=>[p.type,p.value]));
+    return `${map.year}/${map.month}/${map.day}`;
+  }catch(e){
+    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), da=String(d.getDate()).padStart(2,'0');
+    return `${y}/${m}/${da}`;
+  }
+}
+function parseYmdJST(ymd){
+  const m = String(ymd||'').match(/^(\d{4})[\/](\d{1,2})[\/](\d{1,2})$/);
+  if(!m) return null;
+  return new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10), 0,0,0,0);
+}
+
 // ====== 設定 ======
 const Junkai = (()=>{
 
@@ -8,31 +26,6 @@ const Junkai = (()=>{
   const LS_KEY = (c) => `junkai:city:${c}`;
   const TIMEOUT_MS = 15000;
   const DEBUG_ERRORS = true;
-
-
-// === JST helpers (v8n) ===
-function fmtJST(dt){
-  const y = dt.getFullYear();
-  const m = String(dt.getMonth()+1).padStart(2,'0');
-  const d = String(dt.getDate()).padStart(2,'0');
-  const hh = String(dt.getHours()).padStart(2,'0');
-  const mm = String(dt.getMinutes()).padStart(2,'0');
-  const ss = String(dt.getSeconds()).padStart(2,'0');
-  return `${y}/${m}/${d} ${hh}:${mm}:${ss}`;
-}
-function extractYMD(str){
-  if(!str) return '';
-  const s = String(str);
-  const m = s.match(/(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
-  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
-  return '';
-}
-function ymdToFullJST(ymd){
-  const m = String(ymd||'').match(/(\d{4})-(\d{2})-(\d{2})/);
-  if(!m) return '';
-  return `${m[1]}/${m[2]}/${m[3]} 00:00:00`;
-}
-
 
   // ===== utils =====
   const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
@@ -220,27 +213,19 @@ function ymdToFullJST(ymd){
       }
       // Helper to convert yyyy/MM/dd or yyyy/MM/dd-HH:mm to ISO string
       function toISOChecked(s){
-        // Convert sheet 'Checked' date formats to JST string 'yyyy/MM/dd HH:mm:ss'
         if(!s) return '';
         const str = String(s).trim();
-        const m = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:\s+|T)?(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
-        if(m){
-          const y = m[1], mo = String(m[2]).padStart(2,'0'), d = String(m[3]).padStart(2,'0');
-          const hh = String(m[4]||'0').padStart(2,'0'), mm = String(m[5]||'0').padStart(2,'0'), ss = String(m[6]||'0').padStart(2,'0');
-          return `${y}/${mo}/${d} ${hh}:${mm}:${ss}`;
-        }
-        const dOnly = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-        if(dOnly){
-          const y=dOnly[1], mo=String(dOnly[2]).padStart(2,'0'), d=String(dOnly[3]).padStart(2,'0');
-          return `${y}/${mo}/${d} 00:00:00`;
-        }
-        return '';
-      }T${timePart}:00`);
-          return Number.isFinite(dt.getTime())? fmtJST(dt) : '';
+        const parts = str.split('-');
+        let datePart='', timePart='';
+        if(parts.length >= 2){
+          datePart = parts[0].replace(/\//g,'-');
+          timePart = parts[1].split(' ')[0];
+          const dt = new Date(`${datePart}T${timePart}:00`);
+          return Number.isFinite(dt.getTime())? fmtYmdJST(dt) : '';
         } else {
           datePart = str.replace(/\//g,'-');
           const dt = new Date(`${datePart}T00:00:00`);
-          return Number.isFinite(dt.getTime())? fmtJST(dt) : '';
+          return Number.isFinite(dt.getTime())? fmtYmdJST(dt) : '';
         }
       }
       // Prepare buckets per city
@@ -542,15 +527,14 @@ function ymdToFullJST(ymd){
       dtDiv.className = 'datetime';
       function updateDateTime(){
         if(rec.last_inspected_at){
-          const ymd = extractYMD(rec.last_inspected_at);
-          if(ymd){
-            const m = ymd.match(/(\d{4})-(\d{2})-(\d{2})/);
-            if(m){
-              const yyyy=m[1], mm=m[2], dd=m[3];
-              dtDiv.innerHTML = `${yyyy}<br>${mm}/${dd}`;
-              dtDiv.style.display = '';
-              return;
-            }
+          const d = (parseYmdJST(rec.last_inspected_at) || new Date());
+          if(Number.isFinite(d.getTime())){
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth()+1).padStart(2,'0');
+            const dd = String(d.getDate()).padStart(2,'0');
+            dtDiv.innerHTML = `${yyyy}<br>${mm}/${dd}`;
+            dtDiv.style.display = '';
+            return;
           }
         }
         dtDiv.innerHTML = '';
@@ -561,9 +545,9 @@ function ymdToFullJST(ymd){
         const input = document.createElement('input');
         input.type = 'date';
         if(rec.last_inspected_at){
-          const d0 = new Date(rec.last_inspected_at);
+          const d0 = (parseYmdJST(rec.last_inspected_at) || new Date());
           if(Number.isFinite(d0.getTime())){
-            input.value = d0/*v8n*/ extractYMD(rec.last_inspected_at);
+            input.value = fmtYmdJST(d0).slice(0,10);
           }
         }
         dtDiv.appendChild(input);
@@ -573,7 +557,7 @@ function ymdToFullJST(ymd){
           dtDiv.removeChild(input);
           if(!sel) return;
           if(!confirm('よろしいですか？')) return;
-          const iso = /*v8n*/ (ymdToFullJST(sel));
+          const iso = fmtYmdJST((parseYmdJST(sel) || new Date()));
           rec.last_inspected_at = iso;
           persistCityRec(city, rec);
           updateDateTime();
@@ -588,7 +572,7 @@ function ymdToFullJST(ymd){
           chk.checked = !chk.checked;
           return;
         }
-        const nowISO = fmtJST(new Date());
+        const nowISO = fmtYmdJST(new Date());
         rec.checked = chk.checked;
         if(chk.checked){ rec.last_inspected_at = nowISO; } else { rec.last_inspected_at = ''; }
         updateDateTime();
@@ -668,4 +652,21 @@ function ymdToFullJST(ymd){
     initIndex,
     initCity: mountCity,
   };
+})();
+
+// v8o override: ensure toISOChecked returns 'YYYY/MM/DD' in JST (date-only)
+(function(){
+  try{
+    if (typeof toISOChecked === 'function') {
+      const _old = toISOChecked;
+      toISOChecked = function(s){
+        const str = String(s||'').trim().replace(/\./g,'/').replace(/-/g,'/');
+        if(!str) return '';
+        const m = str.match(/^(\d{4})[\/](\d{1,2})[\/](\d{1,2})/);
+        if(!m) return '';
+        const d = new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10), 0,0,0,0);
+        return fmtYmdJST(d);
+      };
+    }
+  }catch(e){/*noop*/}
 })();
