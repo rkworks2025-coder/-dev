@@ -1,21 +1,3 @@
-
-// === v8o JST helpers (force Asia/Tokyo, date-only) ===
-function fmtYmdJST(d){
-  try{
-    const parts = new Intl.DateTimeFormat('ja-JP', { timeZone:'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(d);
-    const map = Object.fromEntries(parts.map(p=>[p.type,p.value]));
-    return `${map.year}/${map.month}/${map.day}`;
-  }catch(e){
-    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), da=String(d.getDate()).padStart(2,'0');
-    return `${y}/${m}/${da}`;
-  }
-}
-function parseYmdJST(ymd){
-  const m = String(ymd||'').match(/^(\d{4})[\/](\d{1,2})[\/](\d{1,2})$/);
-  if(!m) return null;
-  return new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10), 0,0,0,0);
-}
-
 // ====== 設定 ======
 const Junkai = (()=>{
 
@@ -221,11 +203,11 @@ const Junkai = (()=>{
           datePart = parts[0].replace(/\//g,'-');
           timePart = parts[1].split(' ')[0];
           const dt = new Date(`${datePart}T${timePart}:00`);
-          return Number.isFinite(dt.getTime())? fmtYmdJST(dt) : '';
+          return Number.isFinite(dt.getTime())? dt.toISOString() : '';
         } else {
           datePart = str.replace(/\//g,'-');
           const dt = new Date(`${datePart}T00:00:00`);
-          return Number.isFinite(dt.getTime())? fmtYmdJST(dt) : '';
+          return Number.isFinite(dt.getTime())? dt.toISOString() : '';
         }
       }
       // Prepare buckets per city
@@ -527,7 +509,7 @@ const Junkai = (()=>{
       dtDiv.className = 'datetime';
       function updateDateTime(){
         if(rec.last_inspected_at){
-          const d = (parseYmdJST(rec.last_inspected_at) || new Date());
+          const d = new Date(rec.last_inspected_at);
           if(Number.isFinite(d.getTime())){
             const yyyy = d.getFullYear();
             const mm = String(d.getMonth()+1).padStart(2,'0');
@@ -545,9 +527,9 @@ const Junkai = (()=>{
         const input = document.createElement('input');
         input.type = 'date';
         if(rec.last_inspected_at){
-          const d0 = (parseYmdJST(rec.last_inspected_at) || new Date());
+          const d0 = new Date(rec.last_inspected_at);
           if(Number.isFinite(d0.getTime())){
-            input.value = fmtYmdJST(d0).slice(0,10);
+            input.value = d0.toISOString().slice(0,10);
           }
         }
         dtDiv.appendChild(input);
@@ -557,7 +539,7 @@ const Junkai = (()=>{
           dtDiv.removeChild(input);
           if(!sel) return;
           if(!confirm('よろしいですか？')) return;
-          const iso = fmtYmdJST((parseYmdJST(sel) || new Date()));
+          const iso = new Date(sel).toISOString();
           rec.last_inspected_at = iso;
           persistCityRec(city, rec);
           updateDateTime();
@@ -572,7 +554,7 @@ const Junkai = (()=>{
           chk.checked = !chk.checked;
           return;
         }
-        const nowISO = fmtYmdJST(new Date());
+        const nowISO = new Date().toISOString();
         rec.checked = chk.checked;
         if(chk.checked){ rec.last_inspected_at = nowISO; } else { rec.last_inspected_at = ''; }
         updateDateTime();
@@ -652,21 +634,4 @@ const Junkai = (()=>{
     initIndex,
     initCity: mountCity,
   };
-})();
-
-// v8o override: ensure toISOChecked returns 'YYYY/MM/DD' in JST (date-only)
-(function(){
-  try{
-    if (typeof toISOChecked === 'function') {
-      const _old = toISOChecked;
-      toISOChecked = function(s){
-        const str = String(s||'').trim().replace(/\./g,'/').replace(/-/g,'/');
-        if(!str) return '';
-        const m = str.match(/^(\d{4})[\/](\d{1,2})[\/](\d{1,2})/);
-        if(!m) return '';
-        const d = new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10), 0,0,0,0);
-        return fmtYmdJST(d);
-      };
-    }
-  }catch(e){/*noop*/}
 })();
