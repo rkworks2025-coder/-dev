@@ -195,18 +195,41 @@ const Junkai = (()=>{
       }
       // Helper to convert yyyy/MM/dd or yyyy/MM/dd-HH:mm to ISO string
       
-      // --- v8l UTC fix: format Date in JST as 'yyyy/MM/dd HH:mm:ss'
-      function toJSTString(d){
-        const pad = n => String(n).padStart(2,'0');
-        const yyyy = d.getFullYear();
-        const mm = pad(d.getMonth()+1);
-        const dd = pad(d.getDate());
-        const hh = pad(d.getHours());
-        const mi = pad(d.getMinutes());
-        const ss = pad(d.getSeconds());
-        return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
-      }
-    function toISOChecked(s){
+// === v8m: JST date utilities ===
+function pad2(n){ return String(n).padStart(2,'0'); }
+function toJSTString(d){
+  const yyyy = d.getFullYear();
+  const mm = pad2(d.getMonth()+1);
+  const dd = pad2(d.getDate());
+  const hh = pad2(d.getHours());
+  const mi = pad2(d.getMinutes());
+  const ss = pad2(d.getSeconds());
+  return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
+}
+function toJSTDateOnlyString(d){
+  const s = toJSTString(d);
+  return s.slice(0,10);
+}
+function fromYMDLocal(ymd){
+  if(!ymd || !/\d{4}-\d{2}-\d{2}/.test(ymd)) return null;
+  const [y,m,d] = ymd.split('-').map(Number);
+  return new Date(y, m-1, d, 0,0,0);
+}
+function normalizeIncomingDateStr(s){
+  if(!s) return '';
+  const str = String(s).trim();
+  if(/T.+Z$/.test(str)){
+    const d = new Date(str);
+    return Number.isFinite(d.getTime()) ? toJSTString(d) : '';
+  }
+  if(/^\d{4}\/\d{2}\/\d{2}(?:\s+\d{2}:\d{2}:\d{2})?$/.test(str)){
+    return str.replace(/\s+/, ' ').trim();
+  }
+  const d = new Date(str);
+  return Number.isFinite(d.getTime()) ? toJSTString(d) : '';
+}
+// === end v8m helpers ===
+function toISOChecked(s){
         if(!s) return '';
         const str = String(s).trim();
         const parts = str.split('-');
@@ -521,7 +544,7 @@ const Junkai = (()=>{
       dtDiv.className = 'datetime';
       function updateDateTime(){
         if(rec.last_inspected_at){
-          const d = new Date(rec.last_inspected_at);
+          const d = (function(){ const _s=normalizeIncomingDateStr(rec.last_inspected_at); return _s? new Date(_s) : new Date(NaN); })();
           if(Number.isFinite(d.getTime())){
             const yyyy = d.getFullYear();
             const mm = String(d.getMonth()+1).padStart(2,'0');
@@ -539,7 +562,7 @@ const Junkai = (()=>{
         const input = document.createElement('input');
         input.type = 'date';
         if(rec.last_inspected_at){
-          const d0 = new Date(rec.last_inspected_at);
+          const d0 = (function(){ const _s=normalizeIncomingDateStr(rec.last_inspected_at); return _s? new Date(_s) : new Date(NaN); })();
           if(Number.isFinite(d0.getTime())){
             input.value = d0.toISOString().slice(0,10);
           }
@@ -551,8 +574,8 @@ const Junkai = (()=>{
           dtDiv.removeChild(input);
           if(!sel) return;
           if(!confirm('よろしいですか？')) return;
-          const iso = new Date(sel).toISOString();
-          rec.last_inspected_at = iso;
+          const iso = (function(){ const _d=fromYMDLocal(\1)||new Date(\1); return toJSTString(_d); })();
+          rec.last_inspected_at = normalizeIncomingDateStr(iso) || iso;
           persistCityRec(city, rec);
           updateDateTime();
           row.className = `row ${rowBg(rec)}`;
