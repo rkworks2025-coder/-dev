@@ -80,6 +80,3 @@ html,body{margin:0;padding:0;background:#f6f7fb;color:var(--fg);font-family:-app
   /* allow line breaks so MM/DD and HH:MM display on separate lines */
   white-space:normal;
 }
-
-/* v9a Lostボタンの縦積み用の余白 */
-.rightcol .btn + .btn { margin-top: 8px; }

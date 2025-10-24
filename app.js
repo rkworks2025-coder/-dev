@@ -600,12 +600,6 @@ const Junkai = (()=>{
       });
       right.appendChild(sel);
       right.appendChild(btn);
-      // ▼ v9a追加：Lostボタン（UIのみ、機能未実装）
-      const lostBtn = document.createElement('button');
-      lostBtn.className = 'btn tiny';
-      lostBtn.textContent = 'Lost';
-      right.appendChild(lostBtn);
-
       row.appendChild(left);
       row.appendChild(mid);
       row.appendChild(right);
