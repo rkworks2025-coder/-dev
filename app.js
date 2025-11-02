@@ -1,4 +1,4 @@
-// ====== 設定 ======
+// ====== 設定 ====== 
 const Junkai = (()=>{
 
   const GAS_URL = "https://script.google.com/macros/s/AKfycby9RpFiUbYu6YX6JW9XfwbDx36_4AIlGEQMOxR3SnxgNdoRUJKfyxvF3b1SEYwuHb3X/exec";
